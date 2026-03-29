@@ -27,6 +27,9 @@ app.use(express.json({
 // Routes
 app.use('/api/webhooks', webhookRoutes);
 
+const detectorRoutes = require('./routes/detectorRoutes');
+app.use('/api/detect', detectorRoutes);
+
 // General route
 app.get('/', (req, res) => {
   res.send('Backend Server Running');

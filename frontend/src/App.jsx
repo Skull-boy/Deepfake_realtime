@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ClerkLoading, ClerkLoaded, SignedIn, SignedOut } from '@clerk/clerk-react';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
+import Detector from './pages/Detector';
 
 function App() {
   return (
@@ -48,6 +49,18 @@ function App() {
             <>
               <SignedIn>
                 <Dashboard />
+              </SignedIn>
+              <SignedOut>
+                <Navigate to="/sign-in" replace />
+              </SignedOut>
+            </>
+          } />
+
+          {/* Detector Route */}
+          <Route path="/detector" element={
+            <>
+              <SignedIn>
+                <Detector />
               </SignedIn>
               <SignedOut>
                 <Navigate to="/sign-in" replace />

@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { useUser, UserButton } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 
 export default function Dashboard() {
   const { user } = useUser();
   const contentRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (contentRef.current) {
@@ -45,7 +47,10 @@ export default function Dashboard() {
           <p className="text-[13px] text-slate-500 leading-relaxed mb-7">
             You're authenticated and ready to go.
           </p>
-          <button className="px-5 py-2 bg-white text-black text-[13px] font-medium rounded-lg hover:bg-slate-100 transition-colors">
+          <button 
+            onClick={() => navigate('/detector')}
+            className="px-5 py-2 bg-white text-black text-[13px] font-medium rounded-lg hover:bg-slate-100 transition-colors"
+          >
             Go to Detector
           </button>
         </div>
