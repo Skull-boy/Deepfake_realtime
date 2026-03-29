@@ -450,6 +450,8 @@ function smoothPrediction(label, conf) {
 [ ] See REAL / FAKE label update every second
 [ ] (Optional) Load Chrome extension for Google Meet detection
 ```
+C:\Users\SHINJAN\anaconda3\envs\deepfake_gpu\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn main:app --host 0.0.0.0 --port 8000
 
 ---
 

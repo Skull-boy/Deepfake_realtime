@@ -1,0 +1,27 @@
+# Datasets and Extracted Output
+extracted_faces/
+anaconda_projects/
+
+# Model Checkpoints and Output
+*.pt
+checkpoint.pt
+training_curves.png
+
+# Python caches and logs
+__pycache__/
+server/__pycache__/
+*.py[cod]
+*$py.class
+*.log
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# Virtual Environments
+.venv/
+venv/
+.env/
+ENV/
+
+# Editor / IDE
+.vscode/
