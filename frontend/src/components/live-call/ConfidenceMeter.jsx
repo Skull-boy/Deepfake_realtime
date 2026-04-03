@@ -29,61 +29,66 @@ function getGlowColor(label) {
 
 export default function ConfidenceMeter({ confidence = 0, label = null }) {
   const pct = Math.round((confidence ?? 0) * 100);
-  const barColor = getBarColor(label, confidence);
+  const color = getBarColor(label, confidence);
   const glow = getGlowColor(label);
 
+  const radius = 36;
+  const circum = 2 * Math.PI * radius;
+  const strokeDashoffset = label ? circum - (pct / 100) * circum : circum;
+
   return (
-    <div id="confidence-meter" className="w-full flex flex-col gap-2">
-      {/* Header row */}
-      <div className="flex justify-between items-center">
-        <span className="text-[11px] uppercase tracking-widest text-slate-500 font-semibold">
+    <div id="confidence-meter" className="w-full flex items-center justify-between gap-6">
+      
+      {/* Label and Info */}
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[11px] uppercase tracking-widest text-slate-500 font-semibold flex items-center gap-2">
+          <span className={`w-1.5 h-1.5 rounded-full ${label === 'FAKE' ? 'bg-red-500' : label === 'REAL' ? 'bg-emerald-500' : 'bg-slate-500'}`} />
           Confidence
         </span>
-        <span
-          id="confidence-meter-pct"
-          className="text-sm font-bold text-white tabular-nums"
-        >
+        <div className="text-3xl font-black tracking-tighter tabular-nums drop-shadow-md">
           {label ? `${pct}%` : '—'}
-        </span>
+        </div>
+        <div className="text-[10px] text-slate-500 font-medium">
+          {label === 'FAKE' ? 'High Risk' : label === 'REAL' ? 'Authentic' : 'Awaiting Frame...'}
+        </div>
       </div>
 
-      {/* Track */}
-      <div className="relative w-full h-3 rounded-full bg-white/5 overflow-hidden border border-white/10">
-        {/* Fill bar — CSS transition handles animation */}
-        <div
-          id="confidence-meter-fill"
-          className={`h-full rounded-full transition-all duration-700 ease-out ${barColor} ${glow}`}
-          style={{ width: label ? `${pct}%` : '0%' }}
-        />
-
-        {/* Shimmer overlay */}
-        {label && pct > 0 && (
-          <div
-            className="absolute inset-0 rounded-full opacity-30"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
-              animation: 'shimmer 2.5s infinite',
-              backgroundSize: '200% 100%',
-            }}
+      {/* Circular Progress Ring */}
+      <div className="relative flex items-center justify-center">
+        {/* Background track */}
+        <svg className="w-[100px] h-[100px] transform -rotate-90">
+          <circle 
+            cx="50" 
+            cy="50" 
+            r={radius} 
+            stroke="currentColor" 
+            strokeWidth="8" 
+            fill="transparent" 
+            className="text-white/5" 
           />
-        )}
-      </div>
+          {/* Animated Fill */}
+          <circle 
+            cx="50" 
+            cy="50" 
+            r={radius} 
+            stroke="currentColor" 
+            strokeWidth="8" 
+            fill="transparent" 
+            strokeLinecap="round"
+            strokeDasharray={circum} 
+            strokeDashoffset={strokeDashoffset}
+            className={`transition-all duration-1000 ease-out ${color} ${glow.replace('shadow-[0_0_12px_', 'drop-shadow-[0_0_8px_').replace(')]', ']')}`}
+          />
+        </svg>
 
-      {/* Zone labels */}
-      <div className="flex justify-between text-[10px] text-slate-600 font-medium">
-        <span>0%</span>
-        <span className="text-amber-600">60%</span>
-        <span className="text-emerald-600">80%</span>
-        <span>100%</span>
+        {/* Center Icon/Label */}
+        <div className="absolute inset-0 flex items-center justify-center">
+           {label === 'FAKE' && <span className="text-xl animate-pulse">⚠️</span>}
+           {label === 'REAL' && <span className="text-xl">✅</span>}
+           {(!label || label === 'UNKNOWN') && <span className="text-xl opacity-20">🛡️</span>}
+        </div>
       </div>
-
-      {/* Shimmer keyframe */}
-      <style>{`
-        @keyframes shimmer {
-          0%   { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-      `}</style>
+      
     </div>
   );
 }

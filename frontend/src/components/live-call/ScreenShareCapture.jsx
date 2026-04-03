@@ -35,7 +35,7 @@ import React, { useRef, useState, useEffect, useCallback, useImperativeHandle, f
  *   stopStream()      {() => void}  — Programmatically stop the stream
  */
 const ScreenShareCapture = forwardRef(function ScreenShareCapture(
-  { showPreview = true, onFrameCaptured, onStreamStarted, onStreamStopped, onError },
+  { showPreview = true, onFrameCaptured, onStreamStarted, onStreamStopped, onError, prediction, isAnalyzing },
   ref
 ) {
   const videoRef = useRef(null);   // <video> playing the screen stream
@@ -154,14 +154,10 @@ const ScreenShareCapture = forwardRef(function ScreenShareCapture(
   // Render
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col gap-4 w-full">
-
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* ── HTTPS Warning ── */}
       {httpsWarning && (
-        <div
-          id="screen-capture-https-warning"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium"
-        >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 12, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24', fontSize: 12, fontWeight: 500 }}>
           <span>⚠️</span>
           <span>Screen sharing requires HTTPS. It will work on localhost during development.</span>
         </div>
@@ -169,10 +165,7 @@ const ScreenShareCapture = forwardRef(function ScreenShareCapture(
 
       {/* ── Browser Not Supported ── */}
       {!isSupported && (
-        <div
-          id="screen-capture-not-supported"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium"
-        >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', fontSize: 12, fontWeight: 500 }}>
           <span>❌</span>
           <span>Screen capture is not supported in this browser. Please use Chrome or Edge.</span>
         </div>
@@ -181,65 +174,147 @@ const ScreenShareCapture = forwardRef(function ScreenShareCapture(
       {/* ── Screen Share Preview Video ── */}
       {showPreview && (
         <div
-          id="screen-share-preview-container"
-          className="relative w-full rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl shadow-violet-500/10 bg-black aspect-video"
+          style={{
+            position: 'relative',
+            borderRadius: 18,
+            overflow: 'hidden',
+            border: '1px solid rgba(255,255,255,0.07)',
+            background: '#0a0a0a',
+            aspectRatio: '16/9',
+            width: '100%',
+          }}
         >
-          <video
-            id="screen-share-preview-video"
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-full object-contain"
-          />
-
-          {/* Empty state overlay when not sharing */}
-          {!isSharing && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/80">
-              <div
-                id="screen-share-idle-icon"
-                className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl"
-              >
-                🖥️
+          {isSharing ? (
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+            />
+          ) : (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 12,
+              }}
+            >
+              <div className="float-anim">
+                <div
+                  style={{
+                    width: 72,
+                    height: 72,
+                    borderRadius: '50%',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    background: 'rgba(255,255,255,0.03)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 26,
+                  }}
+                >
+                  🖥️
+                </div>
               </div>
-              <p className="text-slate-500 text-sm font-medium">
-                Share your call window to begin analysis
-              </p>
+              <p style={{ fontSize: 13, color: '#52525b', fontWeight: 500 }}>Screen is not shared</p>
+              <p style={{ fontSize: 11, color: '#3f3f46' }}>Share your call window below to begin</p>
             </div>
           )}
 
-          {/* "LIVE" indicator badge when sharing */}
+          {/* Scan laser */}
+          {isSharing && isAnalyzing && <div className="scan-anim" />}
+
+          {/* LIVE badge */}
           {isSharing && (
             <div
-              id="screen-share-live-badge"
-              className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur-sm text-white text-[11px] font-bold tracking-wide shadow-lg"
+              style={{
+                position: 'absolute',
+                top: 14,
+                left: 14,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                padding: '5px 12px',
+                borderRadius: 999,
+                border: '1px solid rgba(239,68,68,0.3)',
+                background: 'rgba(0,0,0,0.6)',
+                backdropFilter: 'blur(8px)',
+              }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              LIVE
+              <span style={{ position: 'relative', width: 8, height: 8, display: 'flex' }}>
+                <span
+                  className="pulse-dot"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '50%',
+                    background: '#ef4444',
+                  }}
+                />
+                <span
+                  style={{
+                    position: 'relative',
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: '#ef4444',
+                    display: 'inline-block',
+                  }}
+                />
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', letterSpacing: '0.05em' }}>
+                LIVE
+              </span>
             </div>
           )}
 
-          {/* Scanning animation overlay when sharing */}
-          {isSharing && (
+          {/* Result overlay on video */}
+          {prediction && isSharing && (
             <div
-              id="screen-share-scan-overlay"
-              className="absolute inset-0 pointer-events-none overflow-hidden"
+              style={{
+                position: 'absolute',
+                bottom: 14,
+                left: 14,
+                right: 14,
+                padding: '10px 14px',
+                borderRadius: 12,
+                backdropFilter: 'blur(12px)',
+                border: prediction.label === 'FAKE'
+                  ? '1px solid rgba(239,68,68,0.35)'
+                  : '1px solid rgba(52,211,153,0.35)',
+                background: prediction.label === 'FAKE'
+                  ? 'rgba(20,5,5,0.75)'
+                  : 'rgba(5,20,12,0.75)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
             >
-              <div
-                className="w-full h-[2px] bg-violet-500 shadow-[0_0_12px_3px_rgba(139,92,246,0.5)]"
-                style={{ animation: 'liveScan 3s linear infinite' }}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {prediction.label === 'FAKE'
+                  ? <span style={{ color: '#ef4444', display: 'flex', alignItems: 'center' }}>🚫</span>
+                  : <span style={{ color: '#34d399', display: 'flex', alignItems: 'center' }}>✅</span>}
+                <span
+                  style={{
+                    fontFamily: 'Syne, sans-serif',
+                    fontWeight: 700,
+                    fontSize: 13,
+                    color: prediction.label === 'FAKE' ? '#ef4444' : '#34d399',
+                  }}
+                >
+                  {prediction.label}
+                </span>
+              </div>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
+                {((prediction.confidence || 0) * 100).toFixed(1)}% confident
+              </span>
             </div>
           )}
-
-          {/* Inline keyframes for the scan line */}
-          <style>{`
-            @keyframes liveScan {
-              0%   { transform: translateY(0); }
-              50%  { transform: translateY(calc(var(--preview-h, 400px) - 2px)); }
-              100% { transform: translateY(0); }
-            }
-          `}</style>
         </div>
       )}
 
@@ -247,34 +322,57 @@ const ScreenShareCapture = forwardRef(function ScreenShareCapture(
       <canvas
         id="screen-capture-offscreen-canvas"
         ref={canvasRef}
-        className="hidden"
+        style={{ display: 'none' }}
         aria-hidden="true"
       />
 
       {/* ── Action Buttons ── */}
-      <div id="screen-capture-controls" className="flex gap-3">
+      <div style={{ display: 'flex', gap: 10 }}>
         {!isSharing ? (
           <button
-            id="screen-share-start-btn"
             onClick={startShare}
             disabled={!isSupported}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium text-sm tracking-tight transition-all duration-300
-              bg-violet-600 text-white hover:bg-violet-500
-              shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_28px_rgba(139,92,246,0.5)]
-              disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 7,
+              padding: '10px 18px',
+              borderRadius: 12,
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(255,255,255,0.04)',
+              color: '#a1a1aa',
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: isSupported ? 'pointer' : 'not-allowed',
+              opacity: isSupported ? 1 : 0.4,
+              transition: 'all 0.15s',
+              fontFamily: 'DM Sans, sans-serif',
+            }}
+            onMouseEnter={e => isSupported && (e.currentTarget.style.color = '#fff')}
+            onMouseLeave={e => isSupported && (e.currentTarget.style.color = '#a1a1aa')}
           >
-            <span>🖥️</span>
-            Share Interview Window
+            🖥️ Share Interview Window
           </button>
         ) : (
           <button
-            id="screen-share-stop-btn"
             onClick={stopStream}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium text-sm tracking-tight transition-all duration-300
-              bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 7,
+              padding: '10px 18px',
+              borderRadius: 12,
+              border: '1px solid rgba(239,68,68,0.3)',
+              background: 'rgba(239,68,68,0.08)',
+              color: '#ef4444',
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+              fontFamily: 'DM Sans, sans-serif',
+            }}
           >
-            <span>⏹</span>
-            Stop Sharing
+            ⏹ Stop Sharing
           </button>
         )}
       </div>

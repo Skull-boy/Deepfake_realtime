@@ -21,13 +21,14 @@
  */
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { UserButton } from '@clerk/clerk-react';
+import { Layers } from 'lucide-react';
 
 import ScreenShareCapture from '../components/live-call/ScreenShareCapture';
-import DetectionBadge from '../components/live-call/DetectionBadge';
 import ConfidenceMeter from '../components/live-call/ConfidenceMeter';
 import ScanHistoryLog from '../components/live-call/ScanHistoryLog';
 import AlertBanner from '../components/live-call/AlertBanner';
+import StudioHeader from '../components/live-call/StudioHeader';
+import StudioSidebar from '../components/live-call/StudioSidebar';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const AI_SERVER_URL = import.meta.env.VITE_AI_SERVER_URL || 'http://localhost:8000';
@@ -168,204 +169,253 @@ export default function LiveCallDetector() {
   // ── Derived stats ─────────────────────────────────────────────────────────
   const fakeRate = totalScans > 0 ? ((fakeCount / totalScans) * 100).toFixed(0) : '—';
 
+  // ── Dynamic Glowing Container based on Prediction ──
+  const previewGlowClass = prediction && isCapturing && prediction.label === 'FAKE'
+    ? 'shadow-[0_0_40px_rgba(239,68,68,0.2)] border-red-500/30'
+    : prediction && isCapturing && prediction.label === 'REAL'
+      ? 'shadow-[0_0_40px_rgba(52,211,153,0.15)] border-emerald-500/20'
+      : 'shadow-[0_0_40px_rgba(139,92,246,0.1)] border-white/10';
+
   // ─── Render ─────────────────────────────────────────────────────────────
   return (
     <div
-      className="min-h-screen flex flex-col bg-[#050505] text-white"
-      style={{ fontFamily: "'Inter', sans-serif" }}
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
+      className="h-screen w-screen bg-[#080808] text-white flex flex-col overflow-hidden"
     >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+        ::-webkit-scrollbar       { width: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(52,211,153,.15); border-radius: 10px; }
+      `}</style>
+      
+      <StudioHeader />
 
-      {/* ── Header ── */}
-      <header className="fixed top-0 w-full px-8 py-4 flex justify-between items-center z-50 bg-[#050505]/80 backdrop-blur-xl border-b border-white/10">
-        <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-[10px]">
-            🛡️
-          </div>
-          <span className="text-[13px] font-semibold tracking-tight">
-            DeepSheild.ai
-          </span>
-          <span className="text-white/20 text-xs">•</span>
-          <span className="text-[12px] text-slate-400 font-medium">
-            Live Interview Detector
-          </span>
-        </div>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+        
+        <StudioSidebar prediction={prediction} />
 
-        <div className="flex items-center gap-4">
-          {/* Live indicator */}
-          {isCapturing && (
-            <div
-              id="live-indicator"
-              className="flex items-center gap-1.5 text-[11px] font-semibold text-red-400"
-            >
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              ANALYZING
-            </div>
-          )}
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{ elements: { userButtonAvatarBox: 'w-8 h-8 border border-white/10' } }}
-          />
-        </div>
-      </header>
-
-      {/* ── Main Content ── */}
-      <main className="flex-1 flex flex-col lg:flex-row gap-6 p-6 mt-[73px]">
-
-        {/* ══ LEFT COLUMN — Screen Share Preview + Controls ══ */}
-        <div className="flex flex-col gap-5 flex-1 min-w-0">
-
-          {/* Section title */}
-          <div>
-            <h1 className="text-base font-bold tracking-tight">Interview Window</h1>
-            <p className="text-slate-500 text-xs mt-0.5">
-              Share the window showing your call to begin real-time analysis
-            </p>
-          </div>
-
-          {/* Screen Share Capture component */}
-          <ScreenShareCapture
-            ref={captureRef}
-            showPreview={true}
-            onStreamStarted={handleStreamStarted}
-            onStreamStopped={handleStreamStopped}
-            onError={handleCaptureError}
-          />
-
-          {/* Scan interval selector */}
+        <main
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            padding: '28px 28px',
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: 0,
+          }}
+        >
+          {/* Breadcrumb */}
           <div
-            id="scan-interval-selector"
-            className="flex flex-col gap-2 p-4 rounded-2xl bg-white/5 border border-white/10"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              marginBottom: 6,
+              fontSize: 11,
+              color: '#52525b',
+            }}
           >
-            <span className="text-[11px] uppercase tracking-widest text-slate-500 font-semibold">
-              Scan Frequency
-            </span>
-            <div className="flex gap-2 flex-wrap">
-              {INTERVAL_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  id={`interval-btn-${opt.label}`}
-                  onClick={() => setScanInterval(opt.value)}
-                  disabled={isCapturing}
-                  className={`
-                    px-4 py-1.5 rounded-lg text-xs font-semibold tracking-tight
-                    transition-all duration-200
-                    ${scanInterval === opt.value
-                      ? 'bg-violet-600 text-white shadow-[0_0_12px_rgba(139,92,246,0.3)]'
-                      : 'bg-white/5 text-slate-400 hover:bg-white/10 border border-white/10'
-                    }
-                    disabled:opacity-40 disabled:cursor-not-allowed
-                  `}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            <p className="text-[10px] text-slate-600 mt-1">
-              {isCapturing
-                ? 'Stop sharing to change scan frequency'
-                : `One scan every ${INTERVAL_OPTIONS.find(o => o.value === scanInterval)?.label}`
-              }
-            </p>
+            <Layers size={10} />
+            <span>Studio</span>
+            <span style={{ color: '#27272a' }}>/</span>
+            <span style={{ color: '#34d399' }}>Live Analysis</span>
           </div>
 
-          {/* Error message */}
-          {error && (
-            <div
-              id="live-call-error"
-              className="flex items-start gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs"
+          {/* Page heading */}
+          <div style={{ marginBottom: 24 }}>
+            <h1
+              style={{
+                fontFamily: 'Syne, sans-serif',
+                fontWeight: 800,
+                fontSize: 20,
+                letterSpacing: '-0.03em',
+                color: '#fff',
+                marginBottom: 4,
+              }}
             >
-              <span className="shrink-0">❌</span>
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* Session stats row */}
-          {totalScans > 0 && (
-            <div
-              id="session-stats"
-              className="grid grid-cols-3 gap-3"
-            >
-              {[
-                { label: 'Total Scans', value: totalScans },
-                { label: 'FAKE Detected', value: fakeCount },
-                { label: 'FAKE Rate', value: `${fakeRate}%` },
-              ].map(stat => (
-                <div
-                  key={stat.label}
-                  className="flex flex-col items-center gap-1 p-3 rounded-xl bg-white/5 border border-white/10"
-                >
-                  <span className="text-lg font-black text-white tabular-nums">
-                    {stat.value}
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-medium text-center">
-                    {stat.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ══ RIGHT COLUMN — Detection Results ══ */}
-        <div className="flex flex-col gap-4 w-full lg:w-[360px] shrink-0">
-
-          {/* Section title */}
-          <div>
-            <h2 className="text-base font-bold tracking-tight">Detection Result</h2>
-            <p className="text-slate-500 text-xs mt-0.5">
-              Real-time analysis of the interviewee's face
+              Live Stream Analysis
+            </h1>
+            <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5 }}>
+              Analyze your call or webcam feed in real-time using AI inference.
             </p>
           </div>
 
           {/* Alert banner */}
-          <AlertBanner
-            consecutiveFakes={consecutiveFakes}
-            threshold={CONSECUTIVE_THRESHOLD}
-          />
-
-          {/* Detection badge */}
-          <DetectionBadge
-            label={prediction?.label ?? null}
-            confidence={prediction?.confidence ?? 0}
-            latency_ms={prediction?.latency_ms ?? null}
-          />
-
-          {/* Confidence meter */}
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-            <ConfidenceMeter
-              confidence={prediction?.confidence ?? 0}
-              label={prediction?.label ?? null}
+          <div style={{ marginBottom: 18 }}>
+            <AlertBanner
+              consecutiveFakes={consecutiveFakes}
+              threshold={CONSECUTIVE_THRESHOLD}
             />
           </div>
 
-          {/* In-flight indicator */}
-          {isAnalyzing && (
-            <div
-              id="analyzing-indicator"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-medium"
-            >
-              <div className="w-3 h-3 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
-              <span>Analyzing frame…</span>
-            </div>
-          )}
-
-          {/* Scan history log */}
-          <div className="flex-1 p-4 rounded-2xl bg-white/5 border border-white/10">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-[11px] uppercase tracking-widest text-slate-500 font-semibold">
-                Scan History
-              </span>
-              {history.length > 0 && (
-                <span className="text-[10px] text-slate-600">
-                  {history.length} / {MAX_HISTORY}
-                </span>
+          {/* Split Wrapper */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 280px',
+              gap: 18,
+              flex: 1,
+              minHeight: 0,
+              alignItems: 'start',
+            }}
+          >
+            {/* Left: Video & Controls */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <ScreenShareCapture
+                ref={captureRef}
+                showPreview={true}
+                onStreamStarted={handleStreamStarted}
+                onStreamStopped={handleStreamStopped}
+                onError={handleCaptureError}
+                prediction={prediction}
+                isAnalyzing={isAnalyzing}
+              />
+              
+              {/* Error message inline */}
+              {error && (
+                <div
+                  id="live-call-error"
+                  className="flex items-start gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs"
+                >
+                  <span className="shrink-0">❌</span>
+                  <span>{error}</span>
+                </div>
               )}
             </div>
-            <ScanHistoryLog history={history} />
-          </div>
 
-        </div>
-      </main>
+            {/* Right: How it works / Stats / Widgets */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              
+              {/* Controls */}
+              <div
+                style={{
+                  padding: 20,
+                  borderRadius: 18,
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: 'rgba(255,255,255,0.02)',
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 10,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    color: '#3f3f46',
+                    fontWeight: 600,
+                    marginBottom: 12,
+                  }}
+                >
+                  Scan Interval
+                </p>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {INTERVAL_OPTIONS.map(opt => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setScanInterval(opt.value)}
+                      disabled={isCapturing}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        border: scanInterval === opt.value ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                        background: scanInterval === opt.value ? 'rgba(52,211,153,0.1)' : 'transparent',
+                        color: scanInterval === opt.value ? '#34d399' : '#71717a',
+                        cursor: isCapturing ? 'not-allowed' : 'pointer',
+                        opacity: isCapturing ? 0.4 : 1,
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Confidence */}
+              <div
+                style={{
+                  padding: 20,
+                  borderRadius: 18,
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: 'rgba(255,255,255,0.02)',
+                }}
+              >
+                {/* Embedded ConfidenceMeter logic directly since it needs to fit this specific size well. Or just reuse component. */}
+                <ConfidenceMeter
+                  confidence={prediction?.confidence ?? 0}
+                  label={prediction?.label ?? null}
+                />
+              </div>
+
+              {/* Stats */}
+              {totalScans > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                  {[
+                    { label: 'Scans', value: totalScans },
+                    { label: 'Fakes', value: fakeCount, color: '#ef4444' },
+                    { label: 'Rate', value: `${fakeRate}%` },
+                  ].map(stat => (
+                    <div
+                      key={stat.label}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '12px 0',
+                        borderRadius: 14,
+                        border: '1px solid rgba(255,255,255,0.06)',
+                        background: 'rgba(255,255,255,0.015)',
+                      }}
+                    >
+                      <span style={{ fontSize: 18, fontWeight: 800, color: stat.color || '#fff', marginBottom: 2 }}>
+                        {stat.value}
+                      </span>
+                      <span style={{ fontSize: 9, textTransform: 'uppercase', color: '#52525b', fontWeight: 600, letterSpacing: '0.05em' }}>
+                        {stat.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* History */}
+              <div
+                style={{
+                  padding: '16px 14px',
+                  borderRadius: 18,
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: 'rgba(255,255,255,0.02)',
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <p
+                    style={{
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      color: '#3f3f46',
+                      fontWeight: 600,
+                    }}
+                  >
+                    History
+                  </p>
+                  {history.length > 0 && (
+                    <span style={{ fontSize: 10, color: '#71717a' }}>{history.length}/{MAX_HISTORY}</span>
+                  )}
+                </div>
+                <ScanHistoryLog history={history} />
+              </div>
+
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
