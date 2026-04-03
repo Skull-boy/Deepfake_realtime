@@ -64,10 +64,16 @@ router.post('/', upload.single('media'), async (req, res) => {
 
     // Ping Computer B only if AI_NGROK_URL is configured
     if (aiNgrokUrl) {
+      const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
       fetch(`${aiNgrokUrl}/process`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ documentId: mediaAnalysis._id.toString() }),
+        body: JSON.stringify({ 
+          documentId: mediaAnalysis._id.toString(),
+          fileUrl: publicUrl,
+          mediaType: mediaType,
+          callbackUrl: `${backendUrl}/api/upload/result`
+        }),
       })
       .then(response => {
         if (!response.ok) {
@@ -87,6 +93,44 @@ router.post('/', upload.single('media'), async (req, res) => {
   } catch (error) {
     console.error('Error in upload route:', error);
     return res.status(500).json({ error: 'Failed to process upload request.' });
+  }
+});
+
+// Endpoint to receive the processed result from the AI server
+router.post('/result', async (req, res) => {
+  try {
+    const { documentId, result } = req.body;
+    if (!documentId || !result) {
+      return res.status(400).json({ error: 'Missing documentId or result' });
+    }
+    
+    let status = 'completed';
+    if (result.error) {
+       status = 'failed';
+    }
+
+    const mediaAnalysis = await MediaAnalysis.findByIdAndUpdate(
+      documentId,
+      {
+        status: status,
+        result: {
+          label: result.label || 'UNKNOWN',
+          confidence: result.confidence || 0,
+          error: result.error || null
+        }
+      },
+      { new: true }
+    );
+    
+    if (!mediaAnalysis) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    console.log(`[Result Callback] Document ${documentId} updated successfully.`);
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('Error in /result callback:', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 

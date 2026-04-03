@@ -33,13 +33,11 @@ mongoose.connect(process.env.MONGO_URI, {
   changeStream.on('change', (change) => {
     if (change.operationType === 'update') {
       const updatedFields = change.updateDescription.updatedFields;
-      // If status changed to completed, broadcast to the frontend
-      if (updatedFields && updatedFields.status === 'completed') {
-         // Fetch the full updated document to send to the frontend
+      // Broadcast if status is completed or failed
+      if (updatedFields && (updatedFields.status === 'completed' || updatedFields.status === 'failed')) {
          MediaAnalysis.findById(change.documentKey._id).then(doc => {
             if (doc) {
-               console.log(`[ChangeStream] Document ${doc._id} completed. Broadcasting result...`);
-               // We emit the event specifically tagged with the documentId so frontend rooms/listeners can catch it
+               console.log(`[ChangeStream] Document ${doc._id} changed to ${doc.status}. Broadcasting result...`);
                io.emit(`analysis_complete_${doc._id}`, doc);
             }
          });

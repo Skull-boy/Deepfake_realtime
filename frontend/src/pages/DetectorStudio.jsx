@@ -114,9 +114,10 @@ export default function DetectorStudio() {
       setUploadResult({ status: 'processing' });
       socket.once(`analysis_complete_${documentId}`, (doc) => {
         setUploadResult({
-          status:     'completed',
+          status:     doc.status || 'completed',
           label:      doc.result?.label      || 'UNKNOWN',
           confidence: doc.result?.confidence || 0,
+          error:      doc.result?.error      || null,
         });
         setIsUploading(false);
       });
@@ -433,7 +434,17 @@ export default function DetectorStudio() {
                 transition: 'all 0.4s ease',
               }}
             >
-              {(livePrediction || uploadResult?.label) ? (
+              {uploadResult?.status === 'failed' ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <AlertCircle size={18} style={{ color: '#ef4444', flexShrink: 0 }} />
+                  <div>
+                    <p style={{ fontSize: 13, fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#ef4444', lineHeight: 1, marginBottom: 4 }}>
+                      ANALYSIS FAILED
+                    </p>
+                    <p style={{ fontSize: 10, color: '#71717a' }}>{uploadResult.error || 'Server error occurred'}</p>
+                  </div>
+                </div>
+              ) : (livePrediction || uploadResult?.label) ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   {isFake
                     ? <AlertCircle size={18} style={{ color: '#ef4444', flexShrink: 0 }} />
