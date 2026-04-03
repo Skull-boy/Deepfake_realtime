@@ -3,6 +3,7 @@ import { Camera, ChevronRight, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function StudioSidebar({ prediction }) {
   const isFake = prediction?.label === 'FAKE';
+  var j;
   
   return (
     <aside
