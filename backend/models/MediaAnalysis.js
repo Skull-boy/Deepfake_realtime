@@ -23,6 +23,10 @@ const MediaAnalysisSchema = new mongoose.Schema({
     confidence: {
       type: Number,
       default: null,
+    },
+    error: {
+      type: String,
+      default: null,
     }
   },
   createdAt: {
