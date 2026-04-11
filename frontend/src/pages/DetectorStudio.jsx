@@ -1174,8 +1174,8 @@ export default function DetectorStudio() {
                         >
                           <AlertCircle size={20} style={{ color: '#ef4444', margin: '0 auto 6px' }} />
                           <p style={{ fontSize: 12, color: '#ef4444', fontWeight: 500 }}>Analysis failed</p>
-                          <p style={{ fontSize: 10, color: 'rgba(239,68,68,0.45)', marginTop: 3 }}>
-                            Check connection and retry
+                          <p style={{ fontSize: 10, color: 'rgba(239,68,68,0.65)', marginTop: 3 }}>
+                            {uploadResult.error || 'Check connection and retry'}
                           </p>
                         </div>
                       )}

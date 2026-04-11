@@ -5,7 +5,8 @@ import { gsap } from 'gsap';
 import {
   Shield, Camera, Activity, ShieldAlert,
   ChevronRight, BarChart3, Database,
-  User, CheckCircle2, Zap, ArrowUpRight, Layers, Video
+  User, CheckCircle2, Zap, ArrowUpRight, Layers, Video,
+  Eye, Brain
 } from 'lucide-react';
 
 /* ─────────────────────────────────────────────
@@ -428,8 +429,81 @@ export default function Dashboard() {
 
           </div>
 
+          {/* ════ TRUST META-CLASSIFIER STATUS ════ */}
+          <div ref={addToRefs}
+            onClick={() => navigate('/review')}
+            className="noise"
+            style={{
+              position: 'relative', overflow: 'hidden',
+              padding: '22px 28px', borderRadius: 20, cursor: 'pointer',
+              border: '1px solid rgba(245,158,11,0.12)',
+              background: 'rgba(10,10,10,0.9)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)';
+              e.currentTarget.style.background = 'rgba(245,158,11,0.04)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'rgba(245,158,11,0.12)';
+              e.currentTarget.style.background = 'rgba(10,10,10,0.9)';
+            }}
+          >
+            {/* Glow */}
+            <div style={{
+              position: 'absolute', left: -40, top: -40,
+              width: 140, height: 140, borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }} />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 13, flexShrink: 0,
+                background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.1))',
+                border: '1px solid rgba(245,158,11,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Brain size={20} color="#f59e0b" />
+              </div>
+              <div>
+                <p style={{
+                  fontFamily: 'Syne, sans-serif', fontWeight: 700,
+                  fontSize: 14, color: '#fff', lineHeight: 1,
+                  marginBottom: 5,
+                }}>
+                  Trust Meta-Classifier
+                  <span style={{
+                    fontSize: 10, fontWeight: 500, color: '#f59e0b',
+                    marginLeft: 8, padding: '2px 8px', borderRadius: 6,
+                    background: 'rgba(245,158,11,0.12)',
+                    border: '1px solid rgba(245,158,11,0.2)',
+                  }}>NEW</span>
+                </p>
+                <p style={{ fontSize: 12, color: '#71717a', lineHeight: 1.4 }}>
+                  Review frames, correct predictions, and retrain the trust layer to improve accuracy.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                padding: '6px 12px', borderRadius: 999,
+                background: 'rgba(245,158,11,0.08)',
+                border: '1px solid rgba(245,158,11,0.15)',
+                fontSize: 11, color: '#f59e0b', fontWeight: 600,
+              }}>
+                <Eye size={10} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+                Open Review
+              </div>
+              <ChevronRight size={16} color="#52525b" />
+            </div>
+
+          </div>
+
           {/* ════ QUICK ACTIONS ROW ════ */}
-          <div ref={addToRefs} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
+          <div ref={addToRefs} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 12 }}>
             {[
               {
                 icon: Camera, label: 'Live Detection',
@@ -453,7 +527,13 @@ export default function Dashboard() {
                 icon: Video, label: 'Live Interview',
                 desc: 'Detect deepfakes during live calls',
                 action: () => navigate('/live-call'),
-                accent: '#c084fc',  // purple-400 — distinct from other cards
+                accent: '#c084fc',
+              },
+              {
+                icon: Eye, label: 'Frame Review',
+                desc: 'Review & retrain trust model',
+                action: () => navigate('/review'),
+                accent: '#f59e0b',
               },
             // eslint-disable-next-line no-unused-vars
             ].map(({ icon: Icon, label, desc, action, accent }) => (

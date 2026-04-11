@@ -52,7 +52,7 @@ export default function ScanHistoryLog({ history = [] }) {
       </div>
 
       {/* Rows — newest first */}
-      {[...history].reverse().map((entry, idx) => {
+      {history.map((entry, idx) => {
         const style = LABEL_STYLE[entry.label] ?? LABEL_STYLE.UNKNOWN;
         const isFirst = idx === 0;
 

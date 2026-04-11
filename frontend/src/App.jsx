@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import DetectorStudio from './pages/DetectorStudio';
 import LandingPage from './pages/LandingPage';
 import LiveCallDetector from './pages/LiveCallDetector';
+import FrameReviewPage from './pages/FrameReviewPage';
 
 function App() {
   return (
@@ -65,6 +66,14 @@ function App() {
           <Route path="/live-call" element={
             <>
               <SignedIn><LiveCallDetector /></SignedIn>
+              <SignedOut><Navigate to="/sign-in" replace /></SignedOut>
+            </>
+          } />
+
+          {/* Frame Review Dashboard — Admin Only */}
+          <Route path="/review" element={
+            <>
+              <SignedIn><FrameReviewPage /></SignedIn>
               <SignedOut><Navigate to="/sign-in" replace /></SignedOut>
             </>
           } />

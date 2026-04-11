@@ -28,6 +28,9 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => {
   console.log('MongoDB connected successfully');
   
+  // Start the automated cleanup job for old media
+  
+  
   // Initialize Change Streams
   const changeStream = MediaAnalysis.watch();
   changeStream.on('change', (change) => {
@@ -55,8 +58,11 @@ io.on('connection', (socket) => {
   });
 });
 
-// Standard middleware
-app.use(cors());
+// Standard middleware — allow credentials for Clerk session cookies
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  credentials: true,
+}));
 
 // CRITICAL: Preserve raw body for Svix webhook verification
 app.use(express.json({
@@ -71,6 +77,9 @@ app.use('/api/upload', uploadRoutes);
 
 const detectorRoutes = require('./routes/detectorRoutes');
 app.use('/api/detect', detectorRoutes);
+
+const reviewRoutes = require('./routes/reviewRoutes');
+app.use('/api/review', reviewRoutes);
 
 // General route
 app.get('/', (req, res) => {

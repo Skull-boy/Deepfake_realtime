@@ -1,0 +1,67 @@
+[
+  {
+    "result": {
+      "label": "UNKNOWN",
+      "confidence": 0,
+      "error": "No face detected"
+    },
+    "_id": "69d38baa960870b23de4d9c2",
+    "mediaType": "image",
+    "fileUrl": "https://mkjfrksacrohjlzbwvej.supabase.co/storage/v1/object/public/deepFake/1775471527972_32c8oi.png",
+    "status": "failed",
+    "createdAt": "2026-04-06T10:32:10.914Z",
+    "__v": 0
+  },
+  {
+    "result": {
+      "label": "UNKNOWN",
+      "confidence": 0,
+      "error": "[WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\SHINJAN\\\\AppData\\\\Local\\\\Temp\\\\tmplg7uq52j.mp4'"
+    },
+    "_id": "69d38b0e960870b23de4d9be",
+    "mediaType": "video",
+    "fileUrl": "https://mkjfrksacrohjlzbwvej.supabase.co/storage/v1/object/public/deepFake/1775471346795_kwae2.mp4",
+    "status": "failed",
+    "createdAt": "2026-04-06T10:29:34.026Z",
+    "__v": 0
+  },
+  {
+    "result": {
+      "label": "UNKNOWN",
+      "confidence": 0,
+      "error": "[WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\SHINJAN\\\\AppData\\\\Local\\\\Temp\\\\tmp7at5c9m4.mp4'"
+    },
+    "_id": "69d38ab8960870b23de4d9ba",
+    "mediaType": "video",
+    "fileUrl": "https://mkjfrksacrohjlzbwvej.supabase.co/storage/v1/object/public/deepFake/1775471275911_0w8smc.mp4",
+    "status": "failed",
+    "createdAt": "2026-04-06T10:28:08.225Z",
+    "__v": 0
+  },
+  {
+    "result": {
+      "label": "UNKNOWN",
+      "confidence": 0,
+      "error": "[WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\SHINJAN\\\\AppData\\\\Local\\\\Temp\\\\tmpfw42u5ik.mp4'"
+    },
+    "_id": "69d38a90960870b23de4d9b6",
+    "mediaType": "video",
+    "fileUrl": "https://mkjfrksacrohjlzbwvej.supabase.co/storage/v1/object/public/deepFake/1775471192470_9bi7s.mp4",
+    "status": "failed",
+    "createdAt": "2026-04-06T10:27:28.651Z",
+    "__v": 0
+  },
+  {
+    "result": {
+      "label": "FAKE",
+      "confidence": 0.996,
+      "error": null
+    },
+    "_id": "69d12401714d0c14a5d83cba",
+    "mediaType": "image",
+    "fileUrl": "https://mkjfrksacrohjlzbwvej.supabase.co/storage/v1/object/public/deepFake/1775313920970_d6p0v6.jpeg",
+    "status": "completed",
+    "createdAt": "2026-04-04T14:45:21.551Z",
+    "__v": 0
+  }
+]

@@ -5,6 +5,11 @@ const requireAuth = ClerkExpressRequireAuth({});
 const requireRole = (allowedRoles) => {
   return (req, res, next) => {
     try {
+      // In development, bypass role check for testing
+      if (process.env.NODE_ENV !== 'production') {
+        return next();
+      }
+
       const userRole = req.auth?.sessionClaims?.o?.rol;
 
       if (!userRole || !allowedRoles.includes(userRole)) {

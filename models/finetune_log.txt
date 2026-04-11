@@ -1,15 +1,15 @@
-Run: 2026-04-03T17:55:21.189965
-custom real=290 fake=6 | DFD mix fake=500 real=200
+Run: 2026-04-07T11:45:28.364916
+custom real=420 fake=6 | DFD mix fake=500 real=200
 Epochs=8 LR=3e-05 Batch=32
 --------------------------------------------------
-Epoch 01/8 | Loss: 0.2322 | Acc: 91.47%
-Epoch 02/8 | Loss: 0.1946 | Acc: 92.57%
-Epoch 03/8 | Loss: 0.1677 | Acc: 94.18%
-Epoch 04/8 | Loss: 0.1576 | Acc: 94.98%
-Epoch 05/8 | Loss: 0.1290 | Acc: 95.68%
-Epoch 06/8 | Loss: 0.1414 | Acc: 95.08%
-Epoch 07/8 | Loss: 0.1157 | Acc: 96.18%
-Epoch 08/8 | Loss: 0.1161 | Acc: 96.39%
+Epoch 01/8 | Loss: 0.1373 | Acc: 95.29%
+Epoch 02/8 | Loss: 0.0766 | Acc: 98.22%
+Epoch 03/8 | Loss: 0.0815 | Acc: 97.69%
+Epoch 04/8 | Loss: 0.0618 | Acc: 98.13%
+Epoch 05/8 | Loss: 0.0953 | Acc: 97.16%
+Epoch 06/8 | Loss: 0.0786 | Acc: 97.42%
+Epoch 07/8 | Loss: 0.0619 | Acc: 97.69%
+Epoch 08/8 | Loss: 0.0728 | Acc: 97.51%
 --------------------------------------------------
-Best acc: 96.39%
+Best acc: 98.22%
 Saved: models/best_model.pt
