@@ -3,23 +3,26 @@
 /* ── Design tokens ── */
 @theme {
   --color-accent-green: #34d399;
-  --color-accent-cyan:  #22d3ee;
+  --color-accent-cyan: #22d3ee;
   --color-accent-violet: #818cf8;
-  --color-bg:           #080808;
-  --color-surface:      rgba(255,255,255,0.026);
-  --color-border:       rgba(255,255,255,0.06);
-  --font-display:       'Syne', sans-serif;
-  --font-body:          'DM Sans', sans-serif;
+  --color-bg: #080808;
+  --color-surface: rgba(255, 255, 255, 0.026);
+  --color-border: rgba(255, 255, 255, 0.06);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
 }
 
 /* ── Reset ── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   overflow-x: hidden;
 }
@@ -33,29 +36,59 @@ body {
 }
 
 /* ── Custom scrollbar ── */
-::-webkit-scrollbar       { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* ── Utility classes ── */
 @layer utilities {
-  .float-anim  { animation: float 5s ease-in-out infinite; }
-  .pulse-ring  { animation: pulse-ring 2.5s ease-in-out infinite; }
+  .float-anim {
+    animation: float 5s ease-in-out infinite;
+  }
+
+  .pulse-ring {
+    animation: pulse-ring 2.5s ease-in-out infinite;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulse-ring {
-  0%   { transform: scale(0.95); opacity: 0.9; }
-  50%  { transform: scale(1.05); opacity: 0.5; }
-  100% { transform: scale(0.95); opacity: 0.9; }
+  0% {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
 }

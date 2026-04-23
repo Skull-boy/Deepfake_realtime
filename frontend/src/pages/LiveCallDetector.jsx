@@ -29,6 +29,8 @@ import ScanHistoryLog from '../components/live-call/ScanHistoryLog';
 import AlertBanner from '../components/live-call/AlertBanner';
 import StudioHeader from '../components/live-call/StudioHeader';
 import StudioSidebar from '../components/live-call/StudioSidebar';
+import AdvancedAnalyticsPanel from '../components/AdvancedAnalyticsPanel';
+import FrequencyAnalysisPanel from '../components/FrequencyAnalysisPanel';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const AI_SERVER_URL = import.meta.env.VITE_AI_SERVER_URL || 'http://localhost:8000';
@@ -188,11 +190,11 @@ export default function LiveCallDetector() {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(52,211,153,.15); border-radius: 10px; }
       `}</style>
-      
+
       <StudioHeader />
 
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
-        
+
         <StudioSidebar prediction={prediction} />
 
         <main
@@ -272,7 +274,7 @@ export default function LiveCallDetector() {
                 prediction={prediction}
                 isAnalyzing={isAnalyzing}
               />
-              
+
               {/* Error message inline */}
               {error && (
                 <div
@@ -287,7 +289,7 @@ export default function LiveCallDetector() {
 
             {/* Right: How it works / Stats / Widgets */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              
+
               {/* Controls */}
               <div
                 style={{
@@ -380,6 +382,36 @@ export default function LiveCallDetector() {
                   ))}
                 </div>
               )}
+
+              {/* Advanced AI Analytics */}
+              <div
+                style={{
+                  padding: '16px 14px',
+                  borderRadius: 18,
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: 'rgba(255,255,255,0.02)',
+                }}
+              >
+                <AdvancedAnalyticsPanel
+                  prediction={prediction}
+                  isActive={isCapturing}
+                />
+              </div>
+
+              {/* Frequency Domain Analysis */}
+              <div
+                style={{
+                  padding: '16px 14px',
+                  borderRadius: 18,
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: 'rgba(255,255,255,0.02)',
+                }}
+              >
+                <FrequencyAnalysisPanel
+                  prediction={prediction}
+                  isActive={isCapturing}
+                />
+              </div>
 
               {/* History */}
               <div

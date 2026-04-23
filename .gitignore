@@ -27,3 +27,13 @@ my_videos/
 
 # Editor / IDE
 .vscode/
+
+# Project Specific Overviews and Guides
+PROJECT_TECHNICAL_OVERVIEW.md
+AI_SUMMIT_DEMO_GUIDE.md
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+server/.env

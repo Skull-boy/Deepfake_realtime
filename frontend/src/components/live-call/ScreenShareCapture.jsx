@@ -184,15 +184,14 @@ const ScreenShareCapture = forwardRef(function ScreenShareCapture(
             width: '100%',
           }}
         >
-          {isSharing ? (
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
-            />
-          ) : (
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            style={{ width: '100%', height: '100%', objectFit: 'contain', display: isSharing ? 'block' : 'none' }}
+          />
+          {!isSharing && (
             <div
               style={{
                 position: 'absolute',
