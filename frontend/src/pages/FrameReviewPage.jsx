@@ -465,10 +465,10 @@ export default function FrameReviewPage() {
                         style={{
                           fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 6,
                           background: currentFrame.trust_verdict === 'TRUSTED' ? 'rgba(52,211,153,0.15)' :
-                                      currentFrame.trust_verdict === 'UNTRUSTED' ? 'rgba(239,68,68,0.15)' :
-                                      'rgba(245,158,11,0.15)',
+                            currentFrame.trust_verdict === 'UNTRUSTED' ? 'rgba(239,68,68,0.15)' :
+                              'rgba(245,158,11,0.15)',
                           color: currentFrame.trust_verdict === 'TRUSTED' ? '#34d399' :
-                                 currentFrame.trust_verdict === 'UNTRUSTED' ? '#ef4444' : '#f59e0b',
+                            currentFrame.trust_verdict === 'UNTRUSTED' ? '#ef4444' : '#f59e0b',
                         }}
                       >
                         {currentFrame.trust_verdict}

@@ -7,6 +7,9 @@ import {
   ChevronRight, Layers
 } from 'lucide-react';
 import { io } from 'socket.io-client';
+import HeatmapOverlay from '../components/HeatmapOverlay';
+import AdvancedAnalyticsPanel from '../components/AdvancedAnalyticsPanel';
+import FrequencyAnalysisPanel from '../components/FrequencyAnalysisPanel';
 
 /* ─────────────────────────────────────────────
    BACKEND / SOCKET — DO NOT TOUCH
@@ -15,9 +18,9 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 const socket = io(backendUrl);
 
 const NAV_ITEMS = [
-  { id: 'live',  label: 'Live Analysis', icon: Camera,    desc: 'Real-time webcam' },
-  { id: 'video', label: 'Video Upload',  icon: Video,     desc: 'MP4, WebM files'  },
-  { id: 'image', label: 'Image Upload',  icon: ImageIcon, desc: 'JPG, PNG files'   },
+  { id: 'live', label: 'Live Analysis', icon: Camera, desc: 'Real-time webcam' },
+  { id: 'video', label: 'Video Upload', icon: Video, desc: 'MP4, WebM files' },
+  { id: 'image', label: 'Image Upload', icon: ImageIcon, desc: 'JPG, PNG files' },
 ];
 
 export default function DetectorStudio() {
@@ -26,17 +29,17 @@ export default function DetectorStudio() {
   /* ── state (unchanged) ── */
   const [activeTab, setActiveTab] = useState('live');
 
-  const videoRef   = useRef(null);
-  const canvasRef  = useRef(null);
-  const [isCameraActive,  setIsCameraActive]  = useState(false);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
   const [isLiveAnalyzing, setIsLiveAnalyzing] = useState(false);
-  const [livePrediction,  setLivePrediction]  = useState(null);
+  const [livePrediction, setLivePrediction] = useState(null);
 
   const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl,   setPreviewUrl]   = useState(null);
-  const [isUploading,  setIsUploading]  = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
-  const [isDragging,   setIsDragging]   = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   /* ── effects (unchanged) ── */
   useEffect(() => {
@@ -70,10 +73,10 @@ export default function DetectorStudio() {
   };
 
   const captureAndSendFrame = async () => {
-    const video  = videoRef.current;
+    const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
-    canvas.width  = video.videoWidth;
+    canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     canvas.toBlob(async (blob) => {
@@ -114,10 +117,10 @@ export default function DetectorStudio() {
       setUploadResult({ status: 'processing' });
       socket.once(`analysis_complete_${documentId}`, (doc) => {
         setUploadResult({
-          status:     doc.status || 'completed',
-          label:      doc.result?.label      || 'UNKNOWN',
+          status: doc.status || 'completed',
+          label: doc.result?.label || 'UNKNOWN',
           confidence: doc.result?.confidence || 0,
-          error:      doc.result?.error      || null,
+          error: doc.result?.error || null,
         });
         setIsUploading(false);
       });
@@ -517,12 +520,12 @@ export default function DetectorStudio() {
                 marginBottom: 4,
               }}
             >
-              {activeTab === 'live'  && 'Live Stream Analysis'}
+              {activeTab === 'live' && 'Live Stream Analysis'}
               {activeTab === 'video' && 'Video Deepfake Analysis'}
               {activeTab === 'image' && 'Image Deepfake Analysis'}
             </h1>
             <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5 }}>
-              {activeTab === 'live'  && 'Analyze your webcam feed in real-time using AI inference every 2 seconds.'}
+              {activeTab === 'live' && 'Analyze your webcam feed in real-time using AI inference every 2 seconds.'}
               {activeTab === 'video' && 'Upload a video file and let the AI engine run deepfake detection.'}
               {activeTab === 'image' && 'Upload an image to instantly check if it is AI-generated or real.'}
             </p>
@@ -685,6 +688,13 @@ export default function DetectorStudio() {
                     </div>
                   )}
 
+                  {/* GradCAM Heatmap Overlay */}
+                  <HeatmapOverlay
+                    heatmapB64={livePrediction?.heatmap_b64}
+                    label={livePrediction?.label}
+                    visible={isCameraActive && isLiveAnalyzing && !!livePrediction}
+                  />
+
                   <canvas ref={canvasRef} style={{ display: 'none' }} />
                 </div>
 
@@ -790,6 +800,18 @@ export default function DetectorStudio() {
                   </div>
                 ))}
               </div>
+
+              {/* Advanced AI Analytics Panel */}
+              <AdvancedAnalyticsPanel
+                prediction={livePrediction}
+                isActive={isLiveAnalyzing && isCameraActive}
+              />
+
+              {/* Frequency Domain Analysis Panel */}
+              <FrequencyAnalysisPanel
+                prediction={livePrediction}
+                isActive={isLiveAnalyzing && isCameraActive}
+              />
             </div>
           )}
 

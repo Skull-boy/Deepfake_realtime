@@ -6,7 +6,7 @@ import {
   Shield, Camera, Activity, ShieldAlert,
   ChevronRight, BarChart3, Database,
   User, CheckCircle2, Zap, ArrowUpRight, Layers, Video,
-  Eye, Brain
+  Eye, Brain, Fingerprint, Waves, Scan, FileText, Radio
 } from 'lucide-react';
 
 /* ─────────────────────────────────────────────
@@ -32,11 +32,11 @@ export default function Dashboard() {
       { opacity: 0, y: -20 },
       { opacity: 1, y: 0, duration: 0.8 }
     )
-    .fromTo(cardsRef.current,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.8, stagger: 0.1 },
-      '-=0.6'
-    );
+      .fromTo(cardsRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.1 },
+        '-=0.6'
+      );
   }, []);
 
   const addToRefs = (el) => {
@@ -48,34 +48,44 @@ export default function Dashboard() {
   /* ── Clerk loading guard (untouched) ── */
   if (!isLoaded) return null;
 
+  /* ── Quick Actions Data ── */
+  const quickActions = [
+    { icon: Camera, label: 'Live Webcam', action: () => navigate('/detector'), accent: '#34d399' },
+    { icon: Video, label: 'Live Interview', action: () => navigate('/live-call'), accent: '#22d3ee' },
+    { icon: Layers, label: 'Upload Media', action: () => navigate('/detector'), accent: '#818cf8' },
+    { icon: Eye, label: 'Frame Review', action: () => navigate('/review'), accent: '#f59e0b' },
+    { icon: FileText, label: 'Reports', action: () => navigate('/reports'), accent: '#f472b6' },
+  ];
+
+  /* ── AI Capabilities ── */
+  const capabilities = [
+    { icon: Scan, title: 'GradCAM', desc: 'Attention heatmaps', accent: '#818cf8' },
+    { icon: Waves, title: 'Temporal', desc: 'Multi-frame drift', accent: '#22d3ee' },
+    { icon: Fingerprint, title: 'TTA', desc: 'Adversarial defense', accent: '#c084fc' },
+    { icon: Radio, title: 'Spectral', desc: 'Frequency analysis', accent: '#f472b6' },
+    { icon: Brain, title: 'Trust Meta', desc: 'Confidence scoring', accent: '#f59e0b' },
+  ];
+
   return (
     <div
       style={{ fontFamily: "'DM Sans', sans-serif" }}
-      className="h-screen w-screen bg-[#080808] text-white flex flex-col overflow-hidden"
+      className="h-screen w-screen bg-[#060606] text-white flex flex-col overflow-hidden"
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-        /* ambient orbs */
         @keyframes drift-a {
           0%, 100% { transform: translate(0, 0) scale(1); }
           50% { transform: translate(40px, -30px) scale(1.08); }
         }
-        @keyframes drift-b {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-35px, 25px) scale(1.06); }
-        }
         .orb-a { animation: drift-a 14s ease-in-out infinite; }
-        .orb-b { animation: drift-b 18s ease-in-out infinite; }
 
-        /* live pulse badge */
         @keyframes pulse-ring {
           0%   { transform: scale(1);   opacity: 0.7; }
           100% { transform: scale(2.2); opacity: 0;   }
         }
         .pulse-ring { animation: pulse-ring 1.8s ease-out infinite; }
 
-        /* shimmer CTA */
         @keyframes shimmer-g {
           0%   { background-position: -200% 0; }
           100% { background-position:  200% 0; }
@@ -86,41 +96,23 @@ export default function Dashboard() {
           animation: shimmer-g 2.8s linear infinite;
         }
 
-        /* stat counter fade-up */
         @keyframes count-up {
           from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         .stat-val { animation: count-up 0.6s ease forwards; }
 
-        /* noise texture */
-        .noise::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-          background-size: 180px;
-          pointer-events: none;
-          border-radius: inherit;
-          mix-blend-mode: overlay;
-        }
-
         ::-webkit-scrollbar       { width: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(52,211,153,.12); border-radius: 10px; }
       `}</style>
 
-      {/* Ambient background glows */}
+      {/* Ambient glow — subtle single orb */}
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
         <div className="orb-a" style={{
-          position: 'absolute', top: '-10%', right: '5%',
-          width: 600, height: 600, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(52,211,153,0.06) 0%, transparent 70%)',
-        }} />
-        <div className="orb-b" style={{
-          position: 'absolute', bottom: '-15%', left: '-5%',
-          width: 700, height: 700, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(34,211,238,0.04) 0%, transparent 70%)',
+          position: 'absolute', top: '-8%', right: '10%',
+          width: 500, height: 500, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(52,211,153,0.04) 0%, transparent 70%)',
         }} />
       </div>
 
@@ -130,43 +122,29 @@ export default function Dashboard() {
       <header
         ref={headerRef}
         style={{
-          flexShrink: 0,
-          height: 60,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 28px',
-          background: 'rgba(8,8,8,0.85)',
+          flexShrink: 0, height: 56,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 24px',
+          background: 'rgba(6,6,6,0.9)',
           backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          zIndex: 50,
-          position: 'relative',
+          borderBottom: '1px solid rgba(255,255,255,0.04)',
+          zIndex: 50, position: 'relative',
         }}
       >
-        {/* Logo — click to go home */}
         <button
           onClick={() => navigate('/')}
           style={{
             display: 'flex', alignItems: 'center', gap: 10,
             background: 'none', border: 'none', cursor: 'pointer',
-            padding: '4px 8px', borderRadius: 10,
-            transition: 'background 0.15s',
+            padding: '4px 6px', borderRadius: 10,
           }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'none'}
         >
           <div style={{
-            width: 32, height: 32, borderRadius: 10,
+            width: 30, height: 30, borderRadius: 9,
             background: 'linear-gradient(135deg,#34d399,#22d3ee)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            position: 'relative',
           }}>
-            <Shield size={14} color="#080808" strokeWidth={2.5} />
-            <span style={{
-              position: 'absolute', top: -2, right: -2,
-              width: 8, height: 8, borderRadius: '50%',
-              background: '#34d399', border: '2px solid #080808',
-            }} />
+            <Shield size={13} color="#060606" strokeWidth={2.5} />
           </div>
           <div>
             <p style={{
@@ -175,474 +153,396 @@ export default function Dashboard() {
             }}>
               DeepSheild<span style={{ color: '#34d399' }}>.ai</span>
             </p>
-            <p style={{ fontSize: 10, color: '#3f3f46', marginTop: 2, lineHeight: 1 }}>
-              Command Center
-            </p>
           </div>
         </button>
 
-        {/* Right side */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* System status pill */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
-            display: 'flex', alignItems: 'center', gap: 7,
-            padding: '5px 12px', borderRadius: 999,
-            border: '1px solid rgba(52,211,153,0.2)',
-            background: 'rgba(52,211,153,0.06)',
-            fontSize: 11, color: '#34d399', fontWeight: 500,
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '4px 10px', borderRadius: 999,
+            border: '1px solid rgba(52,211,153,0.15)',
+            background: 'rgba(52,211,153,0.04)',
+            fontSize: 10, color: '#34d399', fontWeight: 500,
           }}>
-            <span style={{ position: 'relative', width: 8, height: 8, display: 'flex' }}>
+            <span style={{ position: 'relative', width: 6, height: 6, display: 'flex' }}>
               <span className="pulse-ring" style={{
-                position: 'absolute', inset: 0,
-                borderRadius: '50%', background: '#34d399',
+                position: 'absolute', inset: 0, borderRadius: '50%', background: '#34d399',
               }} />
               <span style={{
-                position: 'relative', width: 8, height: 8,
-                borderRadius: '50%', background: '#34d399',
+                position: 'relative', width: 6, height: 6, borderRadius: '50%', background: '#34d399',
               }} />
             </span>
-            System Online
+            Online
           </div>
           <UserButton
             afterSignOutUrl="/"
             appearance={{
-              elements: { userButtonAvatarBox: 'w-8 h-8 border border-emerald-500/30' }
+              elements: { userButtonAvatarBox: 'w-7 h-7 border border-emerald-500/20' }
             }}
           />
         </div>
       </header>
 
       {/* ══════════════════════════════════════
-          MAIN SCROLL AREA
+          MAIN CONTENT
       ══════════════════════════════════════ */}
-      <main style={{
-        flex: 1, overflowY: 'auto', overflowX: 'hidden',
-        position: 'relative', zIndex: 10,
-      }}>
+      <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', position: 'relative', zIndex: 10 }}>
         <div style={{
-          maxWidth: 1200, margin: '0 auto',
-          padding: '36px 28px 48px',
-          display: 'flex', flexDirection: 'column', gap: 28,
+          maxWidth: 1080, margin: '0 auto',
+          padding: '32px 24px 48px',
+          display: 'flex', flexDirection: 'column', gap: 24,
         }}>
 
-          {/* ════ GREETING ROW ════ */}
-          <div ref={addToRefs} style={{
-            display: 'flex', alignItems: 'flex-end',
-            justifyContent: 'space-between', flexWrap: 'wrap', gap: 20,
-            paddingBottom: 24,
-            borderBottom: '1px solid rgba(255,255,255,0.05)',
-          }}>
-            {/* Greeting text */}
+          {/* ════ GREETING ════ */}
+          <div ref={addToRefs} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <span style={{
-                  padding: '3px 10px', borderRadius: 999,
-                  background: 'rgba(52,211,153,0.08)',
-                  border: '1px solid rgba(52,211,153,0.18)',
-                  fontSize: 10, fontWeight: 600,
-                  color: '#34d399', letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                }}>
-                  Access Granted
-                </span>
-                <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: 'monospace' }}>
-                  ID: {user?.id?.slice(5, 13).toUpperCase()}
-                </span>
-              </div>
               <h1 style={{
                 fontFamily: 'Syne, sans-serif', fontWeight: 800,
-                fontSize: 'clamp(24px, 4vw, 38px)',
+                fontSize: 'clamp(22px, 3.5vw, 32px)',
                 letterSpacing: '-0.04em', lineHeight: 1.1,
                 color: '#fff', margin: 0,
               }}>
                 Welcome back,{' '}
                 <span style={{
                   background: 'linear-gradient(135deg,#34d399,#22d3ee)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                 }}>
                   {user?.firstName || 'Agent'}
                 </span>
-                .
               </h1>
-              <p style={{
-                fontSize: 13, color: '#71717a', marginTop: 8,
-                maxWidth: 440, lineHeight: 1.6,
-              }}>
-                Your workspace is primed. Monitor threats or launch a new deepfake detection session.
+              <p style={{ fontSize: 13, color: '#52525b', marginTop: 6, lineHeight: 1.5 }}>
+                Monitor threats, analyze media, or launch a detection session.
               </p>
             </div>
-
-            {/* Launch Studio CTA */}
             <button
               onClick={() => navigate('/detector')}
               className="btn-shimmer"
               style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '12px 22px', borderRadius: 14,
-                border: 'none', color: '#080808',
-                fontSize: 13, fontWeight: 700,
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '10px 20px', borderRadius: 12,
+                border: 'none', color: '#060606',
+                fontSize: 12, fontWeight: 700,
                 cursor: 'pointer', flexShrink: 0,
                 fontFamily: 'DM Sans, sans-serif',
-                boxShadow: '0 0 30px rgba(52,211,153,0.25)',
+                boxShadow: '0 0 24px rgba(52,211,153,0.2)',
               }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
-              <Camera size={14} />
+              <Camera size={13} />
               Launch Studio
-              <ArrowUpRight size={13} />
+              <ArrowUpRight size={12} />
             </button>
           </div>
 
-          {/* ════ BENTO GRID ════
-              Asymmetric: [big hero] [2-col right]
-              Row 2: [recent scans full width]
-          ════════════════════════ */}
-          <div ref={addToRefs} style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gridTemplateRows: 'auto',
-            gap: 16,
-          }}>
+          {/* ════ STATS ROW — clean horizontal cards ════ */}
+          <div ref={addToRefs} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
 
-            {/* ── HERO STAT — Model Accuracy (spans 1 col, taller) ── */}
-            <div className="noise" style={{
-              position: 'relative', overflow: 'hidden',
-              gridColumn: '1 / 2', gridRow: '1 / 2',
-              padding: 28, borderRadius: 20,
-              border: '1px solid rgba(52,211,153,0.12)',
-              background: 'rgba(10,10,10,0.9)',
-              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-              minHeight: 190,
-            }}>
-              {/* Glow behind number */}
-              <div style={{
-                position: 'absolute', right: -30, top: -30,
-                width: 160, height: 160, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(52,211,153,0.12) 0%, transparent 70%)',
-                pointerEvents: 'none',
-              }} />
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
-                  <ShieldAlert size={12} color="#34d399" />
-                  <p style={{
-                    fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
-                    textTransform: 'uppercase', color: '#34d399',
-                  }}>Model Accuracy</p>
-                </div>
-                <h3 className="stat-val" style={{
-                  fontFamily: 'Syne, sans-serif', fontWeight: 800,
-                  fontSize: 52, letterSpacing: '-0.05em', lineHeight: 1,
-                  color: '#fff', margin: 0,
-                }}>
-                  96.64<span style={{ fontSize: 24, color: '#52525b' }}>%</span>
-                </h3>
-                <p style={{ fontSize: 12, color: '#52525b', marginTop: 8 }}>
-                  Global threat baseline
-                </p>
-              </div>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '6px 12px', borderRadius: 999, width: 'fit-content',
-                border: '1px solid rgba(52,211,153,0.15)',
-                background: 'rgba(52,211,153,0.06)',
-              }}>
-                <CheckCircle2 size={11} color="#34d399" />
-                <span style={{ fontSize: 11, color: '#34d399' }}>Verified</span>
-              </div>
-            </div>
-
-            {/* ── ENGINE STATUS ── */}
-            <div className="noise" style={{
-              position: 'relative', overflow: 'hidden',
-              padding: 24, borderRadius: 20,
-              border: '1px solid rgba(255,255,255,0.06)',
-              background: 'rgba(10,10,10,0.9)',
-              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-              minHeight: 190,
-            }}>
-              <div style={{ position: 'absolute', right: -20, top: -20, opacity: 0.08 }}>
-                <Activity size={88} color="#34d399" />
-              </div>
-              <div>
-                <p style={{
-                  fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
-                  textTransform: 'uppercase', color: '#52525b', marginBottom: 14,
-                }}>Engine Status</p>
-                <h3 className="stat-val" style={{
-                  fontFamily: 'Syne, sans-serif', fontWeight: 800,
-                  fontSize: 30, letterSpacing: '-0.03em', color: '#34d399', margin: 0,
-                }}>Optimal</h3>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ position: 'relative', width: 8, height: 8, display: 'flex' }}>
-                  <span className="pulse-ring" style={{
-                    position: 'absolute', inset: 0,
-                    borderRadius: '50%', background: '#34d399',
-                  }} />
-                  <span style={{
-                    position: 'relative', width: 8, height: 8,
-                    borderRadius: '50%', background: '#34d399',
-                  }} />
-                </span>
-                <p style={{ fontSize: 12, color: '#71717a' }}>Latency &lt; 50ms</p>
-              </div>
-            </div>
-
-            {/* ── SCANS PERFORMED ── */}
-            <div className="noise" style={{
-              position: 'relative', overflow: 'hidden',
-              padding: 24, borderRadius: 20,
-              border: '1px solid rgba(255,255,255,0.06)',
-              background: 'rgba(10,10,10,0.9)',
-              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-              minHeight: 190,
-            }}>
-              <div style={{ position: 'absolute', right: -20, top: -20, opacity: 0.06 }}>
-                <Database size={88} color="#a1a1aa" />
-              </div>
-              <div>
-                <p style={{
-                  fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
-                  textTransform: 'uppercase', color: '#52525b', marginBottom: 14,
-                }}>Scans Performed</p>
-                <h3 className="stat-val" style={{
-                  fontFamily: 'Syne, sans-serif', fontWeight: 800,
-                  fontSize: 40, letterSpacing: '-0.04em', color: '#fff', margin: 0,
-                }}>1,048</h3>
-                <p style={{ fontSize: 12, color: '#52525b', marginTop: 6 }}>
-                  Secured this session
-                </p>
-              </div>
-              <div style={{
-                width: '100%', height: 3, borderRadius: 10,
-                background: 'rgba(255,255,255,0.05)', overflow: 'hidden',
-              }}>
-                <div style={{
-                  height: '100%', borderRadius: 10,
-                  width: '72%',
-                  background: 'linear-gradient(90deg,#34d399,#22d3ee)',
-                }} />
-              </div>
-            </div>
-
-          </div>
-
-          {/* ════ TRUST META-CLASSIFIER STATUS ════ */}
-          <div ref={addToRefs}
-            onClick={() => navigate('/review')}
-            className="noise"
-            style={{
-              position: 'relative', overflow: 'hidden',
-              padding: '22px 28px', borderRadius: 20, cursor: 'pointer',
-              border: '1px solid rgba(245,158,11,0.12)',
-              background: 'rgba(10,10,10,0.9)',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)';
-              e.currentTarget.style.background = 'rgba(245,158,11,0.04)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'rgba(245,158,11,0.12)';
-              e.currentTarget.style.background = 'rgba(10,10,10,0.9)';
-            }}
-          >
-            {/* Glow */}
+            {/* Model Accuracy */}
             <div style={{
-              position: 'absolute', left: -40, top: -40,
-              width: 140, height: 140, borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%)',
-              pointerEvents: 'none',
-            }} />
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              padding: '22px 24px', borderRadius: 18,
+              border: '1px solid rgba(52,211,153,0.1)',
+              background: 'rgba(255,255,255,0.02)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#52525b', marginBottom: 8 }}>
+                  Model Accuracy
+                </p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+                  <span className="stat-val" style={{
+                    fontFamily: 'Syne, sans-serif', fontWeight: 800,
+                    fontSize: 36, letterSpacing: '-0.04em', color: '#fff',
+                  }}>96.64</span>
+                  <span style={{ fontSize: 16, color: '#3f3f46', fontWeight: 600 }}>%</span>
+                </div>
+              </div>
               <div style={{
-                width: 44, height: 44, borderRadius: 13, flexShrink: 0,
-                background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.1))',
-                border: '1px solid rgba(245,158,11,0.2)',
+                width: 40, height: 40, borderRadius: 12,
+                background: 'rgba(52,211,153,0.08)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Brain size={20} color="#f59e0b" />
+                <ShieldAlert size={18} color="#34d399" />
               </div>
+            </div>
+
+            {/* Engine Status */}
+            <div style={{
+              padding: '22px 24px', borderRadius: 18,
+              border: '1px solid rgba(255,255,255,0.05)',
+              background: 'rgba(255,255,255,0.02)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
               <div>
-                <p style={{
-                  fontFamily: 'Syne, sans-serif', fontWeight: 700,
-                  fontSize: 14, color: '#fff', lineHeight: 1,
-                  marginBottom: 5,
-                }}>
-                  Trust Meta-Classifier
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#52525b', marginBottom: 8 }}>
+                  Engine Status
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="stat-val" style={{
+                    fontFamily: 'Syne, sans-serif', fontWeight: 800,
+                    fontSize: 22, letterSpacing: '-0.02em', color: '#34d399',
+                  }}>Optimal</span>
                   <span style={{
-                    fontSize: 10, fontWeight: 500, color: '#f59e0b',
-                    marginLeft: 8, padding: '2px 8px', borderRadius: 6,
-                    background: 'rgba(245,158,11,0.12)',
-                    border: '1px solid rgba(245,158,11,0.2)',
-                  }}>NEW</span>
-                </p>
-                <p style={{ fontSize: 12, color: '#71717a', lineHeight: 1.4 }}>
-                  Review frames, correct predictions, and retrain the trust layer to improve accuracy.
-                </p>
+                    fontSize: 10, color: '#3f3f46', padding: '2px 8px',
+                    borderRadius: 6, border: '1px solid rgba(255,255,255,0.06)',
+                    background: 'rgba(255,255,255,0.03)',
+                  }}>{'< 50ms'}</span>
+                </div>
               </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
-                padding: '6px 12px', borderRadius: 999,
-                background: 'rgba(245,158,11,0.08)',
-                border: '1px solid rgba(245,158,11,0.15)',
-                fontSize: 11, color: '#f59e0b', fontWeight: 600,
+                width: 40, height: 40, borderRadius: 12,
+                background: 'rgba(34,211,238,0.06)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Eye size={10} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
-                Open Review
+                <Activity size={18} color="#22d3ee" />
               </div>
-              <ChevronRight size={16} color="#52525b" />
             </div>
 
+            {/* Scans */}
+            <div style={{
+              padding: '22px 24px', borderRadius: 18,
+              border: '1px solid rgba(255,255,255,0.05)',
+              background: 'rgba(255,255,255,0.02)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#52525b', marginBottom: 8 }}>
+                  Scans Performed
+                </p>
+                <span className="stat-val" style={{
+                  fontFamily: 'Syne, sans-serif', fontWeight: 800,
+                  fontSize: 30, letterSpacing: '-0.03em', color: '#fff',
+                }}>1,048</span>
+              </div>
+              <div style={{
+                width: 40, height: 40, borderRadius: 12,
+                background: 'rgba(255,255,255,0.03)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Database size={18} color="#71717a" />
+              </div>
+            </div>
           </div>
 
-          {/* ════ QUICK ACTIONS ROW ════ */}
-          <div ref={addToRefs} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 12 }}>
-            {[
-              {
-                icon: Camera, label: 'Live Detection',
-                desc: 'Analyze webcam in real-time',
-                action: () => navigate('/detector'),
-                accent: '#34d399',
-              },
-              {
-                icon: Layers, label: 'Video Upload',
-                desc: 'Run inference on video files',
-                action: () => navigate('/detector'),
-                accent: '#22d3ee',
-              },
-              {
-                icon: User, label: 'Image Scan',
-                desc: 'Check static images instantly',
-                action: () => navigate('/detector'),
-                accent: '#818cf8',
-              },
-              {
-                icon: Video, label: 'Live Interview',
-                desc: 'Detect deepfakes during live calls',
-                action: () => navigate('/live-call'),
-                accent: '#c084fc',
-              },
-              {
-                icon: Eye, label: 'Frame Review',
-                desc: 'Review & retrain trust model',
-                action: () => navigate('/review'),
-                accent: '#f59e0b',
-              },
-            // eslint-disable-next-line no-unused-vars
-            ].map(({ icon: Icon, label, desc, action, accent }) => (
-              <button
-                key={label}
-                onClick={action}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 14,
-                  padding: '16px 18px', borderRadius: 16, textAlign: 'left',
-                  border: '1px solid rgba(255,255,255,0.05)',
-                  background: 'rgba(255,255,255,0.02)',
-                  cursor: 'pointer', color: '#fff',
-                  transition: 'all 0.15s',
-                  fontFamily: 'DM Sans, sans-serif',
+          {/* ════ QUICK ACTIONS — icon row ════ */}
+          <div ref={addToRefs}>
+            <p style={{
+              fontSize: 10, fontWeight: 600, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: '#3f3f46', marginBottom: 12,
+            }}>Quick Actions</p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {quickActions.map(({ icon: Icon, label, action, accent }) => (
+                <button
+                  key={label}
+                  onClick={action}
+                  style={{
+                    flex: 1, display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', gap: 8,
+                    padding: '18px 12px', borderRadius: 16,
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    background: 'rgba(255,255,255,0.015)',
+                    cursor: 'pointer', color: '#fff',
+                    transition: 'all 0.2s ease',
+                    fontFamily: 'DM Sans, sans-serif',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = `${accent}08`;
+                    e.currentTarget.style.borderColor = `${accent}25`;
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.015)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 10,
+                    background: `${accent}10`,
+                    border: `1px solid ${accent}20`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Icon size={15} color={accent} />
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#a1a1aa' }}>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ════ AI CAPABILITIES — compact inline strip ════ */}
+          <div ref={addToRefs}>
+            <p style={{
+              fontSize: 10, fontWeight: 600, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: '#3f3f46', marginBottom: 12,
+            }}>AI Capabilities</p>
+            <div style={{
+              display: 'flex', gap: 8,
+              padding: '14px 18px', borderRadius: 16,
+              border: '1px solid rgba(255,255,255,0.04)',
+              background: 'rgba(255,255,255,0.015)',
+            }}>
+              {capabilities.map(({ icon: Icon, title, desc, accent }, i) => (
+                <div key={title} style={{
+                  flex: 1, display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '8px 12px', borderRadius: 12,
+                  cursor: 'pointer',
+                  transition: 'background 0.15s',
+                  borderRight: i < capabilities.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
                 }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                  e.currentTarget.style.borderColor = `${accent}30`;
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
-                }}
-              >
-                <div style={{
-                  width: 38, height: 38, borderRadius: 11, flexShrink: 0,
-                  background: `${accent}12`,
-                  border: `1px solid ${accent}20`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon size={15} color={accent} />
+                  onClick={() => navigate('/detector')}
+                  onMouseEnter={e => e.currentTarget.style.background = `${accent}06`}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Icon size={14} color={accent} style={{ flexShrink: 0 }} />
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: '#d4d4d8', lineHeight: 1, marginBottom: 2 }}>{title}</p>
+                    <p style={{ fontSize: 10, color: '#3f3f46', lineHeight: 1 }}>{desc}</p>
+                  </div>
                 </div>
-                <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, lineHeight: 1, marginBottom: 4 }}>{label}</p>
-                  <p style={{ fontSize: 11, color: '#52525b', lineHeight: 1.3 }}>{desc}</p>
-                </div>
-                <ChevronRight size={13} color="#3f3f46" style={{ marginLeft: 'auto', flexShrink: 0 }} />
-              </button>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          {/* ════ TRUST META-CLASSIFIER + REPORTS — side by side ════ */}
+          <div ref={addToRefs} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            {/* Trust */}
+            <button
+              onClick={() => navigate('/review')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 14,
+                padding: '18px 22px', borderRadius: 18, textAlign: 'left',
+                border: '1px solid rgba(245,158,11,0.1)',
+                background: 'rgba(255,255,255,0.015)',
+                cursor: 'pointer', color: '#fff',
+                transition: 'all 0.2s',
+                fontFamily: 'DM Sans, sans-serif',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(245,158,11,0.25)';
+                e.currentTarget.style.background = 'rgba(245,158,11,0.03)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'rgba(245,158,11,0.1)';
+                e.currentTarget.style.background = 'rgba(255,255,255,0.015)';
+              }}
+            >
+              <div style={{
+                width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+                background: 'rgba(245,158,11,0.08)',
+                border: '1px solid rgba(245,158,11,0.15)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Brain size={17} color="#f59e0b" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, lineHeight: 1, marginBottom: 4 }}>
+                  Trust Meta-Classifier
+                </p>
+                <p style={{ fontSize: 11, color: '#52525b', lineHeight: 1.3 }}>
+                  Review frames and retrain the trust layer
+                </p>
+              </div>
+              <ChevronRight size={14} color="#3f3f46" style={{ flexShrink: 0 }} />
+            </button>
+
+            {/* Session Reports */}
+            <button
+              onClick={() => navigate('/reports')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 14,
+                padding: '18px 22px', borderRadius: 18, textAlign: 'left',
+                border: '1px solid rgba(244,114,182,0.1)',
+                background: 'rgba(255,255,255,0.015)',
+                cursor: 'pointer', color: '#fff',
+                transition: 'all 0.2s',
+                fontFamily: 'DM Sans, sans-serif',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(244,114,182,0.25)';
+                e.currentTarget.style.background = 'rgba(244,114,182,0.03)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'rgba(244,114,182,0.1)';
+                e.currentTarget.style.background = 'rgba(255,255,255,0.015)';
+              }}
+            >
+              <div style={{
+                width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+                background: 'rgba(244,114,182,0.08)',
+                border: '1px solid rgba(244,114,182,0.15)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <FileText size={17} color="#f472b6" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, lineHeight: 1, marginBottom: 4 }}>
+                  Session Reports
+                </p>
+                <p style={{ fontSize: 11, color: '#52525b', lineHeight: 1.3 }}>
+                  Forensic audit logs and threat analysis
+                </p>
+              </div>
+              <ChevronRight size={14} color="#3f3f46" style={{ flexShrink: 0 }} />
+            </button>
           </div>
 
           {/* ════ RECENT SCANS ════ */}
           <div ref={addToRefs}>
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              marginBottom: 14, paddingBottom: 14,
-              borderBottom: '1px solid rgba(255,255,255,0.05)',
+              marginBottom: 12,
             }}>
-              <h2 style={{
-                fontFamily: 'Syne, sans-serif', fontWeight: 700,
-                fontSize: 15, letterSpacing: '-0.02em', color: '#fff', margin: 0,
-              }}>
-                Recent Scans
-              </h2>
-              <button style={{
-                fontSize: 11, color: '#34d399', fontWeight: 600,
-                background: 'none', border: 'none', cursor: 'pointer',
-                letterSpacing: '0.05em', fontFamily: 'DM Sans, sans-serif',
-                display: 'flex', alignItems: 'center', gap: 4,
-              }}>
-                View All Logs
-                <ChevronRight size={11} />
+              <p style={{
+                fontSize: 10, fontWeight: 600, letterSpacing: '0.1em',
+                textTransform: 'uppercase', color: '#3f3f46',
+              }}>Recent Activity</p>
+              <button
+                onClick={() => navigate('/reports')}
+                style={{
+                  fontSize: 10, color: '#34d399', fontWeight: 600,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontFamily: 'DM Sans, sans-serif',
+                  display: 'flex', alignItems: 'center', gap: 3,
+                }}
+              >
+                View All <ChevronRight size={10} />
               </button>
             </div>
 
-            {/* Empty state — attractive, not generic */}
             <div style={{
-              position: 'relative', overflow: 'hidden',
-              padding: '52px 28px', borderRadius: 20, textAlign: 'center',
-              border: '1px dashed rgba(255,255,255,0.07)',
+              padding: '40px 28px', borderRadius: 18, textAlign: 'center',
+              border: '1px dashed rgba(255,255,255,0.05)',
               background: 'rgba(255,255,255,0.01)',
             }}>
-              {/* decorative grid lines */}
               <div style={{
-                position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.04,
-                backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
-                backgroundSize: '40px 40px',
-                borderRadius: 20,
-              }} />
-              <div style={{
-                width: 56, height: 56, borderRadius: 16, margin: '0 auto 16px',
-                border: '1px solid rgba(255,255,255,0.07)',
-                background: 'rgba(52,211,153,0.05)',
+                width: 48, height: 48, borderRadius: 14, margin: '0 auto 14px',
+                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(52,211,153,0.04)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <BarChart3 size={22} color="#34d399" style={{ opacity: 0.6 }} />
+                <BarChart3 size={20} color="#34d399" style={{ opacity: 0.5 }} />
               </div>
               <h4 style={{
                 fontFamily: 'Syne, sans-serif', fontWeight: 700,
-                fontSize: 15, color: '#d4d4d8', marginBottom: 8, margin: '0 0 8px',
+                fontSize: 14, color: '#a1a1aa', margin: '0 0 6px',
               }}>
-                No trace logs yet
+                No activity yet
               </h4>
-              <p style={{ fontSize: 12, color: '#52525b', maxWidth: 320, margin: '0 auto 24px', lineHeight: 1.6 }}>
-                Analyze a live stream, video, or image in the Detector Studio — your secure logs will appear here.
+              <p style={{ fontSize: 11, color: '#3f3f46', maxWidth: 300, margin: '0 auto 20px', lineHeight: 1.5 }}>
+                Start a detection session — your secure logs will appear here.
               </p>
               <button
                 onClick={() => navigate('/detector')}
                 className="btn-shimmer"
                 style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 7,
-                  padding: '10px 20px', borderRadius: 12,
-                  border: 'none', color: '#080808',
-                  fontSize: 12, fontWeight: 700,
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '9px 18px', borderRadius: 10,
+                  border: 'none', color: '#060606',
+                  fontSize: 11, fontWeight: 700,
                   cursor: 'pointer',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
               >
-                <Zap size={12} />
+                <Zap size={11} />
                 Analyze Media
               </button>
             </div>

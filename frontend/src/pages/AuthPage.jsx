@@ -42,7 +42,7 @@ export default function AuthPage({ mode = 'signin' }) {
 
       {/* RIGHT — Auth Card Container */}
       <div className="flex-1 flex items-center justify-center px-6 md:px-12 relative overflow-hidden">
-        
+
         {/* Background Ambient Glows */}
         <div className="absolute top-[15%] right-[20%] w-[400px] h-[400px] bg-violet-600/10 blur-[120px] rounded-full pointer-events-none mix-blend-screen"></div>
         <div className="absolute bottom-[20%] right-[5%] w-[300px] h-[300px] bg-indigo-600/10 blur-[100px] rounded-full pointer-events-none mix-blend-screen"></div>
@@ -50,18 +50,18 @@ export default function AuthPage({ mode = 'signin' }) {
         <div ref={cardRef} className="relative z-10 w-full flex flex-col items-center justify-center">
           {mode === 'signin' ? (
             <>
-              <SignIn 
-                routing="path" 
+              <SignIn
+                routing="path"
                 path="/sign-in"
                 signUpUrl="/sign-up"
                 appearance={{
                   baseTheme: dark,
                   variables: {
                     colorPrimary: '#22d3ee', // DeepSheild Cyan
-                    colorBackground: '#0a0a0a', 
+                    colorBackground: '#0a0a0a',
                   },
                   elements: {
-                    card: "border border-white/10 shadow-2xl shadow-cyan-900/40", 
+                    card: "border border-white/10 shadow-2xl shadow-cyan-900/40",
                     footerAction: "hidden", // Hide Clerk's own sign-up link (we replace it below)
                   }
                 }}
@@ -69,18 +69,18 @@ export default function AuthPage({ mode = 'signin' }) {
             </>
           ) : (
             <>
-              <SignUp 
-                routing="path" 
+              <SignUp
+                routing="path"
                 path="/sign-up"
                 signInUrl="/sign-in"
                 appearance={{
                   baseTheme: dark,
                   variables: {
                     colorPrimary: '#22d3ee', // DeepSheild Cyan
-                    colorBackground: '#0a0a0a', 
+                    colorBackground: '#0a0a0a',
                   },
                   elements: {
-                    card: "border border-white/10 shadow-2xl shadow-cyan-900/40", 
+                    card: "border border-white/10 shadow-2xl shadow-cyan-900/40",
                     footerAction: "hidden", // Hide Clerk's own sign-in link
                   }
                 }}
