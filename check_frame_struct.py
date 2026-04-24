@@ -1,8 +1,14 @@
 import os
 import certifi
 from pymongo import MongoClient
+from dotenv import load_dotenv
 
-MONGO_URI = "mongodb+srv://psuedohacks:nothingphone2a128gb12gbram@cluster0.qs5ag9m.mongodb.net/deepfake?appName=Cluster0"
+env_path = os.path.join(os.path.dirname(__file__), 'backend', '.env')
+load_dotenv(env_path)
+
+MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    raise ValueError("MONGO_URI environment variable not set")
 
 try:
     client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
