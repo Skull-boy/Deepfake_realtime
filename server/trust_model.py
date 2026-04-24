@@ -20,7 +20,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 TRUST_VERDICTS = {0: "UNTRUSTED", 1: "TRUSTED", 2: "NEEDS_REVIEW"}
-TRUST_WEIGHTS_PATH = os.path.join(os.path.dirname(__file__), "..", "models", "trust_meta.pt")
+if os.path.exists("models/trust_meta.pt"):
+    TRUST_WEIGHTS_PATH = "models/trust_meta.pt"
+else:
+    TRUST_WEIGHTS_PATH = os.path.join(os.path.dirname(__file__), "..", "models", "trust_meta.pt")
 
 
 class TrustMetaClassifier(nn.Module):

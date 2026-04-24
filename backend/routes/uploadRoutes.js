@@ -16,79 +16,97 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-router.post('/', upload.single('media'), async (req, res) => {
+router.post('/', upload.array('media', 50), async (req, res) => {
   try {
-    if (!req.file || !req.file.buffer) {
-      return res.status(400).json({ error: 'No media uploaded.' });
+    if (!req.files || req.files.length === 0) {
+      // Fallback for single file upload just in case
+      if (req.file && req.file.buffer) {
+        req.files = [req.file];
+      } else {
+        return res.status(400).json({ error: 'No media uploaded.' });
+      }
     }
 
     const aiNgrokUrl = process.env.AI_NGROK_URL;
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    const results = [];
 
-    // Determine media type based on mimetype
-    const mediaType = req.file.mimetype.startsWith('video') ? 'video' : 'image';
-    const extension = req.file.originalname.split('.').pop();
-    const uniqueFileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${extension}`;
+    for (const file of req.files) {
+      // Determine media type based on mimetype
+      const mediaType = file.mimetype.startsWith('video') ? 'video' : 'image';
+      const extension = file.originalname.split('.').pop();
+      const uniqueFileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${extension}`;
 
-    // Upload to Supabase bucket
-    const { data: uploadData, error: uploadError } = await supabase
-      .storage
-      .from(supabaseBucket)
-      .upload(uniqueFileName, req.file.buffer, {
-        contentType: req.file.mimetype,
-        upsert: false
+      // Upload to Supabase bucket
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from(supabaseBucket)
+        .upload(uniqueFileName, file.buffer, {
+          contentType: file.mimetype,
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Supabase upload error for', file.originalname, ':', uploadError);
+        continue;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase
+        .storage
+        .from(supabaseBucket)
+        .getPublicUrl(uniqueFileName);
+      
+      const publicUrl = urlData.publicUrl;
+
+      // Create MongoDB Document
+      const mediaAnalysis = new MediaAnalysis({
+        mediaType: mediaType,
+        fileUrl: publicUrl,
+        status: 'processing'
       });
 
-    if (uploadError) {
-      console.error('Supabase upload error:', uploadError);
-      return res.status(500).json({ error: 'Failed to upload media to storage.' });
+      await mediaAnalysis.save();
+
+      console.log(`[Upload] Document created: ${mediaAnalysis._id}.`);
+      results.push({ documentId: mediaAnalysis._id.toString(), filename: file.originalname });
+
+      // Ping Computer B only if AI_NGROK_URL is configured
+      if (aiNgrokUrl) {
+        fetch(`${aiNgrokUrl}/process`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            documentId: mediaAnalysis._id.toString(),
+            fileUrl: publicUrl,
+            mediaType: mediaType,
+            callbackUrl: `${backendUrl}/api/upload/result`
+          }),
+        })
+        .then(response => {
+          if (!response.ok) {
+            console.error('[Upload] Computer B async ping failed with status:', response.status);
+          } else {
+            console.log(`[Upload] Computer B triggered for ${mediaAnalysis._id}`);
+          }
+        })
+        .catch(err => console.error('[Upload] Error pinging Computer B:', err));
+      } else {
+        console.warn('[Upload] AI_NGROK_URL not set — skipping Computer B trigger.');
+      }
     }
 
-    // Get public URL
-    const { data: urlData } = supabase
-      .storage
-      .from(supabaseBucket)
-      .getPublicUrl(uniqueFileName);
-    
-    const publicUrl = urlData.publicUrl;
+    if (results.length === 0) {
+       return res.status(500).json({ error: 'Failed to upload media to storage.' });
+    }
 
-    // Create MongoDB Document
-    const mediaAnalysis = new MediaAnalysis({
-      mediaType: mediaType,
-      fileUrl: publicUrl,
-      status: 'processing'
+    // Instantly respond to the frontend with the document IDs
+    // Return the first documentId as documentId for backward compatibility, and documentIds array
+    return res.json({ 
+      documentId: results[0].documentId,
+      documentIds: results.map(r => r.documentId),
+      files: results
     });
-
-    await mediaAnalysis.save();
-
-    console.log(`[Upload] Document created: ${mediaAnalysis._id}.`);
-
-    // Ping Computer B only if AI_NGROK_URL is configured
-    if (aiNgrokUrl) {
-      const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
-      fetch(`${aiNgrokUrl}/process`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          documentId: mediaAnalysis._id.toString(),
-          fileUrl: publicUrl,
-          mediaType: mediaType,
-          callbackUrl: `${backendUrl}/api/upload/result`
-        }),
-      })
-      .then(response => {
-        if (!response.ok) {
-          console.error('[Upload] Computer B async ping failed with status:', response.status);
-        } else {
-          console.log(`[Upload] Computer B triggered for ${mediaAnalysis._id}`);
-        }
-      })
-      .catch(err => console.error('[Upload] Error pinging Computer B:', err));
-    } else {
-      console.warn('[Upload] AI_NGROK_URL not set — skipping Computer B trigger.');
-    }
-
-    // Instantly respond to the frontend with the document ID
-    return res.json({ documentId: mediaAnalysis._id.toString() });
 
   } catch (error) {
     console.error('Error in upload route:', error);
