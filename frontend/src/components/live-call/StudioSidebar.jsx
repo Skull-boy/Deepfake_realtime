@@ -40,8 +40,8 @@ export default function StudioSidebar({ prediction }) {
               gap: 10,
               padding: '10px 10px',
               borderRadius: 12,
-              border: '1px solid rgba(52,211,153,0.2)',
-              background: 'rgba(52,211,153,0.07)',
+              border: '1px solid rgba(99,102,241,0.2)',
+              background: 'rgba(99,102,241,0.07)',
               color: '#fff',
               cursor: 'pointer',
               textAlign: 'left',
@@ -59,7 +59,7 @@ export default function StudioSidebar({ prediction }) {
                 width: 2,
                 height: 18,
                 borderRadius: 10,
-                background: '#34d399',
+                background: '#6366f1',
               }}
             />
             <div
@@ -70,8 +70,8 @@ export default function StudioSidebar({ prediction }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'rgba(52,211,153,0.12)',
-                color: '#34d399',
+                background: 'rgba(99,102,241,0.12)',
+                color: '#6366f1',
                 flexShrink: 0,
               }}
             >
@@ -81,7 +81,7 @@ export default function StudioSidebar({ prediction }) {
               <p style={{ fontSize: 12, fontWeight: 500, lineHeight: 1, marginBottom: 3 }}>Live Call</p>
               <p style={{ fontSize: 10, color: '#52525b', lineHeight: 1 }}>Real-time scan</p>
             </div>
-            <ChevronRight size={12} style={{ marginLeft: 'auto', color: '#34d399', flexShrink: 0 }} />
+            <ChevronRight size={12} style={{ marginLeft: 'auto', color: '#6366f1', flexShrink: 0 }} />
           </button>
         </div>
       </div>
@@ -108,12 +108,12 @@ export default function StudioSidebar({ prediction }) {
             border: prediction
               ? isFake
                 ? '1px solid rgba(239,68,68,0.25)'
-                : '1px solid rgba(52,211,153,0.25)'
+                : '1px solid rgba(99,102,241,0.25)'
               : '1px solid rgba(255,255,255,0.06)',
             background: prediction
               ? isFake
                 ? 'rgba(239,68,68,0.06)'
-                : 'rgba(52,211,153,0.06)'
+                : 'rgba(99,102,241,0.06)'
               : 'rgba(255,255,255,0.02)',
             transition: 'all 0.4s ease',
           }}
@@ -122,14 +122,14 @@ export default function StudioSidebar({ prediction }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {isFake
                 ? <AlertCircle size={18} style={{ color: '#ef4444', flexShrink: 0 }} />
-                : <CheckCircle2 size={18} style={{ color: '#34d399', flexShrink: 0 }} />}
+                : <CheckCircle2 size={18} style={{ color: '#6366f1', flexShrink: 0 }} />}
               <div>
                 <p
                   style={{
                     fontSize: 13,
                     fontFamily: 'Syne, sans-serif',
                     fontWeight: 700,
-                    color: isFake ? '#ef4444' : '#34d399',
+                    color: isFake ? '#ef4444' : '#6366f1',
                     lineHeight: 1,
                     marginBottom: 4,
                   }}

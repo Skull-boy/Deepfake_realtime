@@ -22,7 +22,7 @@ function getBarColor(label, confidence) {
 
 function getGlowColor(label) {
   if (label === 'FAKE') return 'shadow-[0_0_12px_rgba(239,68,68,0.4)]';
-  if (label === 'REAL') return 'shadow-[0_0_12px_rgba(52,211,153,0.4)]';
+  if (label === 'REAL') return 'shadow-[0_0_12px_rgba(99,102,241,0.4)]';
   if (label === 'UNCERTAIN') return 'shadow-[0_0_12px_rgba(251,191,36,0.4)]';
   return '';
 }

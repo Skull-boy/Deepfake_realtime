@@ -22,70 +22,27 @@ function App() {
 
       <ClerkLoaded>
         <Routes>
-          {/* Native Authentication Routes */}
-          <Route path="/sign-in/*" element={
-            <>
-              <SignedIn><Navigate to="/dashboard" replace /></SignedIn>
-              <SignedOut><AuthPage mode="signin" /></SignedOut>
-            </>
-          } />
-          <Route path="/sign-up/*" element={
-            <>
-              <SignedIn><Navigate to="/dashboard" replace /></SignedIn>
-              <SignedOut><AuthPage mode="signup" /></SignedOut>
-            </>
-          } />
-
           {/* Base Route */}
           <Route path="/" element={<LandingPage />} />
 
+          {/* Auth Routes */}
+          <Route path="/sign-in/*" element={<AuthPage mode="signin" />} />
+          <Route path="/sign-up/*" element={<AuthPage mode="signup" />} />
+
           {/* Secure Dashboard Route */}
-          <Route path="/dashboard" element={
-            <>
-              <SignedIn>
-                <Dashboard />
-              </SignedIn>
-              <SignedOut>
-                <Navigate to="/sign-in" replace />
-              </SignedOut>
-            </>
-          } />
+          <Route path="/dashboard" element={<Dashboard />} />
 
           {/* Detector Route */}
-          <Route path="/detector" element={
-            <>
-              <SignedIn>
-                <DetectorStudio />
-              </SignedIn>
-              <SignedOut>
-                <Navigate to="/sign-in" replace />
-              </SignedOut>
-            </>
-          } />
+          <Route path="/detector" element={<DetectorStudio />} />
 
           {/* Live Call Detector Route — Phase 4 */}
-          <Route path="/live-call" element={
-            <>
-              <SignedIn><LiveCallDetector /></SignedIn>
-              <SignedOut><Navigate to="/sign-in" replace /></SignedOut>
-            </>
-          } />
+          <Route path="/live-call" element={<LiveCallDetector />} />
 
           {/* Frame Review Dashboard — Admin Only */}
-          <Route path="/review" element={
-            <>
-              <SignedIn><FrameReviewPage /></SignedIn>
-              <SignedOut><Navigate to="/sign-in" replace /></SignedOut>
-            </>
-          } />
+          <Route path="/review" element={<FrameReviewPage />} />
 
           {/* Session Reports — Forensic Audit */}
-          <Route path="/reports" element={
-            <>
-              <SignedIn><SessionReportPage /></SignedIn>
-              <SignedOut><Navigate to="/sign-in" replace /></SignedOut>
-            </>
-          } />
+          <Route path="/reports" element={<SessionReportPage />} />
         </Routes>
       </ClerkLoaded>
     </>

@@ -175,3 +175,37 @@ def get_review_stats():
     except Exception as e:
         print(f"[FRAME_STORE] ERROR getting stats: {e}")
         return {"total_frames": 0, "reviewed": 0, "pending_review": 0, "available_for_training": 0}
+
+def get_recent_threats(limit: int = 10):
+    """Returns recent frames mapped to threat feed format for the dashboard."""
+    try:
+        collection = _get_mongo_collection()
+        cursor = collection.find({}).sort("timestamp", -1).limit(limit)
+        results = []
+        for doc in cursor:
+            conf = doc.get("primary_confidence", 0.0) * 100
+            label = doc.get("primary_label", "UNKNOWN")
+            
+            threat_type = "GAN.Deepfake" if label == "FAKE" else "Real.Verified"
+            
+            trust = doc.get("trust_verdict", "TRUSTED")
+            if trust == "UNTRUSTED":
+                status = "BLOCKED"
+            elif trust == "NEEDS_REVIEW":
+                status = "REVIEW"
+            else:
+                status = "CLEAR" if label == "REAL" else "QUARANTINE"
+
+            results.append({
+                "id": f"0x{str(doc['_id'])[-4:].upper()}",
+                "ts": doc["timestamp"].strftime("%H:%M:%S.%f")[:-3] if "timestamp" in doc and doc["timestamp"] else "",
+                "type": threat_type,
+                "node": doc.get("session_id", "unknown")[:10],
+                "conf": round(conf, 1),
+                "status": status,
+                "hash": str(doc['_id']) * 3
+            })
+        return results
+    except Exception as e:
+        print(f"[FRAME_STORE] ERROR getting recent threats: {e}")
+        return []

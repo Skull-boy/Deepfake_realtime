@@ -35,7 +35,7 @@ export default function HeatmapOverlay({ heatmapB64, label, visible = true }) {
           gap: 5,
           padding: '5px 10px',
           borderRadius: 999,
-          border: `1px solid ${isFake ? 'rgba(239,68,68,0.3)' : 'rgba(52,211,153,0.3)'}`,
+          border: `1px solid ${isFake ? 'rgba(239,68,68,0.3)' : 'rgba(99,102,241,0.3)'}`,
           background: 'rgba(0,0,0,0.65)',
           backdropFilter: 'blur(8px)',
           cursor: 'pointer',
@@ -43,7 +43,7 @@ export default function HeatmapOverlay({ heatmapB64, label, visible = true }) {
           fontSize: 10,
           fontWeight: 600,
           color: showHeatmap
-            ? (isFake ? '#ef4444' : '#34d399')
+            ? (isFake ? '#ef4444' : '#6366f1')
             : '#71717a',
           transition: 'all 0.2s ease',
           fontFamily: 'DM Sans, sans-serif',

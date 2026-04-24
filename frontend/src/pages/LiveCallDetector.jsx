@@ -175,7 +175,7 @@ export default function LiveCallDetector() {
   const previewGlowClass = prediction && isCapturing && prediction.label === 'FAKE'
     ? 'shadow-[0_0_40px_rgba(239,68,68,0.2)] border-red-500/30'
     : prediction && isCapturing && prediction.label === 'REAL'
-      ? 'shadow-[0_0_40px_rgba(52,211,153,0.15)] border-emerald-500/20'
+      ? 'shadow-[0_0_40px_rgba(99,102,241,0.15)] border-emerald-500/20'
       : 'shadow-[0_0_40px_rgba(139,92,246,0.1)] border-white/10';
 
   // ─── Render ─────────────────────────────────────────────────────────────
@@ -188,7 +188,7 @@ export default function LiveCallDetector() {
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
         ::-webkit-scrollbar       { width: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(52,211,153,.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(99,102,241,.15); border-radius: 10px; }
       `}</style>
 
       <StudioHeader />
@@ -222,7 +222,7 @@ export default function LiveCallDetector() {
             <Layers size={10} />
             <span>Studio</span>
             <span style={{ color: '#27272a' }}>/</span>
-            <span style={{ color: '#34d399' }}>Live Analysis</span>
+            <span style={{ color: '#6366f1' }}>Live Analysis</span>
           </div>
 
           {/* Page heading */}
@@ -322,9 +322,9 @@ export default function LiveCallDetector() {
                         borderRadius: 8,
                         fontSize: 12,
                         fontWeight: 600,
-                        border: scanInterval === opt.value ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(255,255,255,0.06)',
-                        background: scanInterval === opt.value ? 'rgba(52,211,153,0.1)' : 'transparent',
-                        color: scanInterval === opt.value ? '#34d399' : '#71717a',
+                        border: scanInterval === opt.value ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                        background: scanInterval === opt.value ? 'rgba(99,102,241,0.1)' : 'transparent',
+                        color: scanInterval === opt.value ? '#6366f1' : '#71717a',
                         cursor: isCapturing ? 'not-allowed' : 'pointer',
                         opacity: isCapturing ? 0.4 : 1,
                       }}
