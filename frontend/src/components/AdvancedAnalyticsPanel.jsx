@@ -69,13 +69,13 @@ export default function AdvancedAnalyticsPanel({ prediction, isActive = false })
   const agreementPct = (tta_agreement * 100).toFixed(0);
 
   // Color logic
-  const consistencyColor = temporal_consistency > 0.9 ? '#34d399'
+  const consistencyColor = temporal_consistency > 0.9 ? '#6366f1'
     : temporal_consistency > 0.75 ? '#f59e0b' : '#ef4444';
 
-  const agreementColor = tta_agreement > 0.8 ? '#34d399'
+  const agreementColor = tta_agreement > 0.8 ? '#6366f1'
     : tta_agreement > 0.6 ? '#f59e0b' : '#ef4444';
 
-  const trustColor = trust_verdict === 'TRUSTED' ? '#34d399'
+  const trustColor = trust_verdict === 'TRUSTED' ? '#6366f1'
     : trust_verdict === 'NEEDS_REVIEW' ? '#f59e0b' : '#ef4444';
 
   return (
@@ -193,7 +193,7 @@ export default function AdvancedAnalyticsPanel({ prediction, isActive = false })
               </span>
               <p style={{
                 fontSize: 12, fontWeight: 600, margin: '2px 0 0',
-                color: tta_label === 'FAKE' ? '#ef4444' : '#34d399',
+                color: tta_label === 'FAKE' ? '#ef4444' : '#6366f1',
               }}>
                 {tta_label}
               </p>

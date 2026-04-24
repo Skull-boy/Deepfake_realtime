@@ -15,7 +15,7 @@ export default function FrequencyAnalysisPanel({ prediction, isActive }) {
   const spectralDetails = prediction.spectral_details ?? 'unavailable';
   const dedupHit = prediction.dedup_cache_hit ?? false;
 
-  const scoreColor = spectralScore >= 0.7 ? '#34d399' : spectralScore >= 0.4 ? '#facc15' : '#ef4444';
+  const scoreColor = spectralScore >= 0.7 ? '#6366f1' : spectralScore >= 0.4 ? '#facc15' : '#ef4444';
   const detailsLabel = {
     natural: 'Natural Spectrum',
     minor_artifacts: 'Minor Artifacts',
@@ -51,8 +51,8 @@ export default function FrequencyAnalysisPanel({ prediction, isActive }) {
         {dedupHit && (
           <span style={{
             marginLeft: 'auto', fontSize: 8, padding: '2px 6px',
-            borderRadius: 6, background: 'rgba(52,211,153,0.1)',
-            color: '#34d399', fontWeight: 600, letterSpacing: '0.05em',
+            borderRadius: 6, background: 'rgba(99,102,241,0.1)',
+            color: '#6366f1', fontWeight: 600, letterSpacing: '0.05em',
           }}>CACHED</span>
         )}
       </div>
@@ -100,7 +100,7 @@ export default function FrequencyAnalysisPanel({ prediction, isActive }) {
           <p style={{ fontSize: 9, color: '#52525b', marginBottom: 2 }}>Status</p>
           <p style={{
             fontSize: 11, fontWeight: 600,
-            color: spectralAnomaly ? '#ef4444' : '#34d399',
+            color: spectralAnomaly ? '#ef4444' : '#6366f1',
           }}>
             {detailsLabel}
           </p>

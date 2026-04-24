@@ -458,6 +458,12 @@ def predict(req: FrameRequest, background_tasks: BackgroundTasks):
 # Session Report Endpoints
 # ──────────────────────────────────────
 
+@app.get("/recent_threats")
+def recent_threats(limit: int = Query(default=10, le=50)):
+    """Fetch recent threat detections for the dashboard feed."""
+    from frame_store import get_recent_threats
+    return get_recent_threats(limit=limit)
+
 @app.get("/sessions")
 def get_sessions(limit: int = Query(default=50, le=200)):
     """List recent sessions with summary stats."""

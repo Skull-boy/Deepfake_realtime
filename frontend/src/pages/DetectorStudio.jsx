@@ -138,10 +138,13 @@ export default function DetectorStudio() {
      RENDER — redesigned UI, all logic wired same
   ───────────────────────────────────────────── */
   return (
-    <div
-      style={{ fontFamily: "'DM Sans', sans-serif" }}
-      className="h-screen w-screen bg-[#080808] text-white flex flex-col overflow-hidden"
-    >
+    <div className="h-screen w-screen bg-black text-gray-200 flex flex-col overflow-hidden relative z-0 font-sans">
+      {/* Background Elements */}
+      <div className="fixed inset-0 pointer-events-none z-[-1]">
+        <div className="absolute top-0 left-0 w-full h-full bg-grid-pattern opacity-10"></div>
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-900/20 blur-[150px]"></div>
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-violet-900/20 blur-[150px]"></div>
+      </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -165,8 +168,8 @@ export default function DetectorStudio() {
         }
         .scan-anim {
           position: absolute; left: 0; width: 100%; height: 1.5px;
-          background: linear-gradient(90deg, transparent 0%, #34d399 50%, transparent 100%);
-          box-shadow: 0 0 14px 4px rgba(52,211,153,.5);
+          background: linear-gradient(90deg, transparent 0%, #6366f1 50%, transparent 100%);
+          box-shadow: 0 0 14px 4px rgba(99,102,241,.5);
           animation: scan-line 2s linear infinite;
         }
         .pulse-dot  { animation: pulse-dot 1.6s ease-out infinite; }
@@ -179,7 +182,7 @@ export default function DetectorStudio() {
           100% { background-position:  200% 0; }
         }
         .btn-shimmer {
-          background: linear-gradient(90deg,#059669 0%,#34d399 40%,#059669 100%);
+          background: linear-gradient(90deg,#4f46e5 0%,#6366f1 40%,#4f46e5 100%);
           background-size: 200% 100%;
           animation: shimmer-g 2.5s linear infinite;
         }
@@ -187,26 +190,13 @@ export default function DetectorStudio() {
         /* Scrollbar */
         ::-webkit-scrollbar       { width: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(52,211,153,.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(99,102,241,.15); border-radius: 10px; }
       `}</style>
 
       {/* ══════════════════════════════════════
           HEADER
       ══════════════════════════════════════ */}
-      <header
-        style={{
-          flexShrink: 0,
-          height: 60,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 24px',
-          background: 'rgba(8,8,8,0.85)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          zIndex: 50,
-        }}
-      >
+      <header className="flex-shrink-0 h-[60px] flex items-center justify-between px-6 bg-[#0a0a0a]/90 premium-glass border-b border-[#222] z-50">
         {/* Logo — click to go home */}
         <button
           onClick={() => navigate('/')}
@@ -230,7 +220,7 @@ export default function DetectorStudio() {
               width: 32,
               height: 32,
               borderRadius: 10,
-              background: 'linear-gradient(135deg,#34d399,#22d3ee)',
+              background: 'linear-gradient(135deg,#6366f1,#22d3ee)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -247,7 +237,7 @@ export default function DetectorStudio() {
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: '#34d399',
+                background: '#6366f1',
                 border: '2px solid #080808',
               }}
             />
@@ -263,7 +253,7 @@ export default function DetectorStudio() {
                 lineHeight: 1,
               }}
             >
-              DeepSheild<span style={{ color: '#34d399' }}>.ai</span>
+              DeepSheild<span style={{ color: '#6366f1' }}>.ai</span>
             </p>
             <p style={{ fontSize: 10, color: '#52525b', marginTop: 2, lineHeight: 1 }}>
               Detection Studio
@@ -280,10 +270,10 @@ export default function DetectorStudio() {
               gap: 6,
               padding: '5px 12px',
               borderRadius: 999,
-              border: '1px solid rgba(52,211,153,0.2)',
-              background: 'rgba(52,211,153,0.06)',
+              border: '1px solid rgba(99,102,241,0.2)',
+              background: 'rgba(99,102,241,0.06)',
               fontSize: 11,
-              color: '#34d399',
+              color: '#6366f1',
               fontWeight: 500,
             }}
           >
@@ -292,7 +282,7 @@ export default function DetectorStudio() {
                 width: 6,
                 height: 6,
                 borderRadius: '50%',
-                background: '#34d399',
+                background: '#6366f1',
                 display: 'inline-block',
               }}
             />
@@ -308,17 +298,7 @@ export default function DetectorStudio() {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
 
         {/* ──────────────────── SIDEBAR ──────────────────── */}
-        <aside
-          style={{
-            width: 220,
-            flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            background: 'rgba(255,255,255,0.015)',
-            borderRight: '1px solid rgba(255,255,255,0.05)',
-          }}
-        >
+        <aside className="w-[220px] flex-shrink-0 flex flex-col overflow-hidden bg-[#0a0a0a]/90 premium-glass border-r border-[#222]">
           {/* Mode selector */}
           <div style={{ padding: '20px 14px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
             <p
@@ -353,8 +333,8 @@ export default function DetectorStudio() {
                       gap: 10,
                       padding: '10px 10px',
                       borderRadius: 12,
-                      border: active ? '1px solid rgba(52,211,153,0.2)' : '1px solid transparent',
-                      background: active ? 'rgba(52,211,153,0.07)' : 'transparent',
+                      border: active ? '1px solid rgba(99,102,241,0.2)' : '1px solid transparent',
+                      background: active ? 'rgba(99,102,241,0.07)' : 'transparent',
                       color: active ? '#fff' : '#71717a',
                       cursor: 'pointer',
                       textAlign: 'left',
@@ -375,7 +355,7 @@ export default function DetectorStudio() {
                           width: 2,
                           height: 18,
                           borderRadius: 10,
-                          background: '#34d399',
+                          background: '#6366f1',
                         }}
                       />
                     )}
@@ -387,8 +367,8 @@ export default function DetectorStudio() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: active ? 'rgba(52,211,153,0.12)' : 'rgba(255,255,255,0.04)',
-                        color: active ? '#34d399' : '#52525b',
+                        background: active ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)',
+                        color: active ? '#6366f1' : '#52525b',
                         flexShrink: 0,
                       }}
                     >
@@ -398,7 +378,7 @@ export default function DetectorStudio() {
                       <p style={{ fontSize: 12, fontWeight: 500, lineHeight: 1, marginBottom: 3 }}>{label}</p>
                       <p style={{ fontSize: 10, color: '#52525b', lineHeight: 1 }}>{desc}</p>
                     </div>
-                    {active && <ChevronRight size={12} style={{ marginLeft: 'auto', color: '#34d399', flexShrink: 0 }} />}
+                    {active && <ChevronRight size={12} style={{ marginLeft: 'auto', color: '#6366f1', flexShrink: 0 }} />}
                   </button>
                 );
               })}
@@ -427,12 +407,12 @@ export default function DetectorStudio() {
                 border: (livePrediction || uploadResult?.label)
                   ? isFake
                     ? '1px solid rgba(239,68,68,0.25)'
-                    : '1px solid rgba(52,211,153,0.25)'
+                    : '1px solid rgba(99,102,241,0.25)'
                   : '1px solid rgba(255,255,255,0.06)',
                 background: (livePrediction || uploadResult?.label)
                   ? isFake
                     ? 'rgba(239,68,68,0.06)'
-                    : 'rgba(52,211,153,0.06)'
+                    : 'rgba(99,102,241,0.06)'
                   : 'rgba(255,255,255,0.02)',
                 transition: 'all 0.4s ease',
               }}
@@ -451,14 +431,14 @@ export default function DetectorStudio() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   {isFake
                     ? <AlertCircle size={18} style={{ color: '#ef4444', flexShrink: 0 }} />
-                    : <CheckCircle2 size={18} style={{ color: '#34d399', flexShrink: 0 }} />}
+                    : <CheckCircle2 size={18} style={{ color: '#6366f1', flexShrink: 0 }} />}
                   <div>
                     <p
                       style={{
                         fontSize: 13,
                         fontFamily: 'Syne, sans-serif',
                         fontWeight: 700,
-                        color: isFake ? '#ef4444' : '#34d399',
+                        color: isFake ? '#ef4444' : '#6366f1',
                         lineHeight: 1,
                         marginBottom: 4,
                       }}
@@ -503,7 +483,7 @@ export default function DetectorStudio() {
             <Layers size={10} />
             <span>Studio</span>
             <span style={{ color: '#27272a' }}>/</span>
-            <span style={{ color: '#34d399' }}>
+            <span style={{ color: '#6366f1' }}>
               {activeTab === 'live' ? 'Live Analysis' : activeTab === 'video' ? 'Video Upload' : 'Image Upload'}
             </span>
           </div>
@@ -546,17 +526,7 @@ export default function DetectorStudio() {
               {/* Video panel */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {/* Viewport */}
-                <div
-                  style={{
-                    position: 'relative',
-                    borderRadius: 18,
-                    overflow: 'hidden',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                    background: '#0a0a0a',
-                    aspectRatio: '16/9',
-                    width: '100%',
-                  }}
-                >
+                <div className="bg-[#0a0a0a] border border-[#222] rounded-[18px] overflow-hidden relative aspect-video w-full premium-shadow">
                   {isCameraActive ? (
                     <video
                       ref={videoRef}
@@ -658,7 +628,7 @@ export default function DetectorStudio() {
                         backdropFilter: 'blur(12px)',
                         border: livePrediction.label === 'FAKE'
                           ? '1px solid rgba(239,68,68,0.35)'
-                          : '1px solid rgba(52,211,153,0.35)',
+                          : '1px solid rgba(99,102,241,0.35)',
                         background: livePrediction.label === 'FAKE'
                           ? 'rgba(20,5,5,0.75)'
                           : 'rgba(5,20,12,0.75)',
@@ -670,13 +640,13 @@ export default function DetectorStudio() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         {livePrediction.label === 'FAKE'
                           ? <AlertCircle size={14} style={{ color: '#ef4444' }} />
-                          : <CheckCircle2 size={14} style={{ color: '#34d399' }} />}
+                          : <CheckCircle2 size={14} style={{ color: '#6366f1' }} />}
                         <span
                           style={{
                             fontFamily: 'Syne, sans-serif',
                             fontWeight: 700,
                             fontSize: 13,
-                            color: livePrediction.label === 'FAKE' ? '#ef4444' : '#34d399',
+                            color: livePrediction.label === 'FAKE' ? '#ef4444' : '#6366f1',
                           }}
                         >
                           {livePrediction.label}
@@ -752,14 +722,7 @@ export default function DetectorStudio() {
               </div>
 
               {/* How it works panel */}
-              <div
-                style={{
-                  padding: 20,
-                  borderRadius: 18,
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  background: 'rgba(255,255,255,0.02)',
-                }}
-              >
+              <div className="bg-[#111] border border-[#222] rounded-[18px] p-5 premium-shadow">
                 <p
                   style={{
                     fontSize: 10,
@@ -784,8 +747,8 @@ export default function DetectorStudio() {
                         width: 24,
                         height: 24,
                         borderRadius: 7,
-                        background: 'rgba(52,211,153,0.1)',
-                        color: '#34d399',
+                        background: 'rgba(99,102,241,0.1)',
+                        color: '#6366f1',
                         fontSize: 10,
                         fontWeight: 700,
                         display: 'flex',
@@ -842,10 +805,10 @@ export default function DetectorStudio() {
                       minHeight: 340,
                       borderRadius: 18,
                       border: isDragging
-                        ? '2px dashed #34d399'
+                        ? '2px dashed #6366f1'
                         : '2px dashed rgba(255,255,255,0.08)',
                       background: isDragging
-                        ? 'rgba(52,211,153,0.05)'
+                        ? 'rgba(99,102,241,0.05)'
                         : 'transparent',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
@@ -861,13 +824,13 @@ export default function DetectorStudio() {
                           height: 72,
                           borderRadius: 18,
                           border: '1px solid rgba(255,255,255,0.07)',
-                          background: isDragging ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.03)',
+                          background: isDragging ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.03)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                         }}
                       >
-                        <UploadCloud size={28} color={isDragging ? '#34d399' : '#52525b'} />
+                        <UploadCloud size={28} color={isDragging ? '#6366f1' : '#52525b'} />
                       </div>
                       <div style={{ textAlign: 'center' }}>
                         <p style={{ fontSize: 14, fontWeight: 600, color: isDragging ? '#fff' : '#a1a1aa', marginBottom: 4 }}>
@@ -886,16 +849,7 @@ export default function DetectorStudio() {
                     />
                   </label>
                 ) : (
-                  <div
-                    style={{
-                      position: 'relative',
-                      minHeight: 340,
-                      borderRadius: 18,
-                      overflow: 'hidden',
-                      border: '1px solid rgba(255,255,255,0.07)',
-                      background: '#000',
-                    }}
-                  >
+                    <div className="relative min-h-[340px] rounded-[18px] overflow-hidden border border-[#222] bg-[#000] premium-shadow">
                     {activeTab === 'video'
                       ? <video src={previewUrl} controls style={{ width: '100%', maxHeight: 420, objectFit: 'contain', display: 'block' }} />
                       : <img src={previewUrl} alt="Preview" style={{ width: '100%', maxHeight: 420, objectFit: 'contain', display: 'block' }} />}
@@ -939,8 +893,8 @@ export default function DetectorStudio() {
                         }}
                       >
                         {activeTab === 'video'
-                          ? <Video size={10} color="#34d399" />
-                          : <ImageIcon size={10} color="#34d399" />}
+                          ? <Video size={10} color="#6366f1" />
+                          : <ImageIcon size={10} color="#6366f1" />}
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {selectedFile?.name}
                         </span>
@@ -969,14 +923,7 @@ export default function DetectorStudio() {
               {/* Analysis panel */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {/* Main card */}
-                <div
-                  style={{
-                    padding: 20,
-                    borderRadius: 18,
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    background: 'rgba(255,255,255,0.02)',
-                  }}
-                >
+                <div className="bg-[#111] border border-[#222] rounded-[18px] p-5 premium-shadow">
                   {/* Panel header */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
                     <div
@@ -984,13 +931,13 @@ export default function DetectorStudio() {
                         width: 34,
                         height: 34,
                         borderRadius: 10,
-                        background: 'rgba(52,211,153,0.1)',
+                        background: 'rgba(99,102,241,0.1)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                       }}
                     >
-                      <Activity size={14} color="#34d399" />
+                      <Activity size={14} color="#6366f1" />
                     </div>
                     <div>
                       <p style={{ fontSize: 13, fontWeight: 600, lineHeight: 1, fontFamily: 'Syne, sans-serif' }}>
@@ -1061,8 +1008,8 @@ export default function DetectorStudio() {
                             style={{
                               width: 13,
                               height: 13,
-                              border: '2px solid rgba(52,211,153,0.3)',
-                              borderTopColor: '#34d399',
+                              border: '2px solid rgba(99,102,241,0.3)',
+                              borderTopColor: '#6366f1',
                               borderRadius: '50%',
                               display: 'inline-block',
                             }}
@@ -1098,8 +1045,8 @@ export default function DetectorStudio() {
                             gap: 10,
                             padding: '10px 12px',
                             borderRadius: 12,
-                            border: '1px solid rgba(52,211,153,0.15)',
-                            background: 'rgba(52,211,153,0.05)',
+                            border: '1px solid rgba(99,102,241,0.15)',
+                            background: 'rgba(99,102,241,0.05)',
                           }}
                         >
                           <span
@@ -1107,18 +1054,18 @@ export default function DetectorStudio() {
                             style={{
                               width: 14,
                               height: 14,
-                              border: '2px solid rgba(52,211,153,0.3)',
-                              borderTopColor: '#34d399',
+                              border: '2px solid rgba(99,102,241,0.3)',
+                              borderTopColor: '#6366f1',
                               borderRadius: '50%',
                               display: 'inline-block',
                               flexShrink: 0,
                             }}
                           />
                           <div>
-                            <p style={{ fontSize: 12, fontWeight: 500, color: '#34d399' }}>
+                            <p style={{ fontSize: 12, fontWeight: 500, color: '#6366f1' }}>
                               {uploadResult.status === 'uploading' ? 'Uploading to cloud…' : 'AI running inference…'}
                             </p>
-                            <p style={{ fontSize: 10, color: 'rgba(52,211,153,0.4)', marginTop: 2 }}>Please wait</p>
+                            <p style={{ fontSize: 10, color: 'rgba(99,102,241,0.4)', marginTop: 2 }}>Please wait</p>
                           </div>
                         </div>
                       )}
@@ -1130,16 +1077,16 @@ export default function DetectorStudio() {
                             padding: '18px 16px',
                             borderRadius: 14,
                             border: uploadResult.label === 'REAL'
-                              ? '1px solid rgba(52,211,153,0.25)'
+                              ? '1px solid rgba(99,102,241,0.25)'
                               : '1px solid rgba(239,68,68,0.25)',
                             background: uploadResult.label === 'REAL'
-                              ? 'rgba(52,211,153,0.05)'
+                              ? 'rgba(99,102,241,0.05)'
                               : 'rgba(239,68,68,0.05)',
                             textAlign: 'center',
                           }}
                         >
                           {uploadResult.label === 'REAL'
-                            ? <CheckCircle2 size={32} style={{ color: '#34d399', margin: '0 auto 8px' }} />
+                            ? <CheckCircle2 size={32} style={{ color: '#6366f1', margin: '0 auto 8px' }} />
                             : <AlertCircle size={32} style={{ color: '#ef4444', margin: '0 auto 8px' }} />}
                           <p
                             style={{
@@ -1147,7 +1094,7 @@ export default function DetectorStudio() {
                               fontWeight: 800,
                               fontSize: 22,
                               letterSpacing: '-0.03em',
-                              color: uploadResult.label === 'REAL' ? '#34d399' : '#ef4444',
+                              color: uploadResult.label === 'REAL' ? '#6366f1' : '#ef4444',
                               marginBottom: 8,
                             }}
                           >
@@ -1168,7 +1115,7 @@ export default function DetectorStudio() {
                               style={{
                                 height: '100%',
                                 borderRadius: 10,
-                                background: uploadResult.label === 'REAL' ? '#34d399' : '#ef4444',
+                                background: uploadResult.label === 'REAL' ? '#6366f1' : '#ef4444',
                                 width: `${(uploadResult.confidence * 100).toFixed(0)}%`,
                                 transition: 'width 1s ease',
                               }}
@@ -1206,14 +1153,7 @@ export default function DetectorStudio() {
                 </div>
 
                 {/* Tips card */}
-                <div
-                  style={{
-                    padding: '16px 18px',
-                    borderRadius: 16,
-                    border: '1px solid rgba(255,255,255,0.05)',
-                    background: 'rgba(255,255,255,0.015)',
-                  }}
-                >
+                <div className="bg-[#111] border border-[#222] rounded-[16px] px-[18px] py-[16px] premium-shadow">
                   <p
                     style={{
                       fontSize: 10,
@@ -1240,7 +1180,7 @@ export default function DetectorStudio() {
                             width: 5,
                             height: 5,
                             borderRadius: '50%',
-                            background: '#34d399',
+                            background: '#6366f1',
                             flexShrink: 0,
                             marginTop: 5,
                           }}

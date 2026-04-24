@@ -2,24 +2,56 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserButton, useUser, useAuth } from '@clerk/clerk-react';
 import {
-  Shield, ChevronLeft, ChevronRight, Eye, EyeOff,
-  RefreshCw, CheckCircle2, AlertCircle, Zap, Filter,
-  BarChart3, Brain, ArrowRight, Clock, Layers, Sparkles,
+  ShieldAlert, ChevronRight, Eye, RefreshCw, CheckCircle2, 
+  AlertCircle, Zap, Layers, Clock, BarChart3, Brain, Sparkles, Crosshair,
+  Lock
 } from 'lucide-react';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-/* ─────────────────────────────────────
-   FRAME REVIEW PAGE
-   Admin-only post-session review dashboard
-───────────────────────────────────── */
+const MONO = { fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace" };
+const SANS = { fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif" };
+
+function GridBackground() {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: '#020204' }}>
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '40px 40px', backgroundPosition: 'center center' }} />
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(99,102,241,0.05) 0%, transparent 60%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%)', backgroundSize: '100% 4px', zIndex: 100, pointerEvents: 'none', opacity: 0.4 }} />
+    </div>
+  );
+}
+
+function CyberPanel({ title, children, style = {} }) {
+  return (
+    <div style={{ position: 'relative', background: 'rgba(10,10,15,0.6)', border: '1px solid rgba(99,102,241,0.1)', display: 'flex', flexDirection: 'column', ...style }}>
+      <div style={{ position: 'absolute', top: -1, left: -1, width: 8, height: 8, borderTop: '2px solid #6366f1', borderLeft: '2px solid #6366f1', zIndex: 10 }} />
+      <div style={{ position: 'absolute', top: -1, right: -1, width: 8, height: 8, borderTop: '2px solid #6366f1', borderRight: '2px solid #6366f1', zIndex: 10 }} />
+      <div style={{ position: 'absolute', bottom: -1, left: -1, width: 8, height: 8, borderBottom: '2px solid #6366f1', borderLeft: '2px solid #6366f1', zIndex: 10 }} />
+      <div style={{ position: 'absolute', bottom: -1, right: -1, width: 8, height: 8, borderBottom: '2px solid #6366f1', borderRight: '2px solid #6366f1', zIndex: 10 }} />
+      
+      {title && (
+        <div style={{ padding: '12px 20px', borderBottom: '1px solid rgba(99,102,241,0.1)', background: 'rgba(99,102,241,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 5 }}>
+          <div style={{ ...MONO, fontSize: 11, fontWeight: 700, color: '#818cf8', letterSpacing: '0.15em' }}>{title}</div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            <div style={{ width: 4, height: 4, background: 'rgba(255,255,255,0.2)' }} />
+            <div style={{ width: 4, height: 4, background: 'rgba(255,255,255,0.2)' }} />
+            <div style={{ width: 4, height: 4, background: '#818cf8' }} />
+          </div>
+        </div>
+      )}
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export default function FrameReviewPage() {
   const navigate = useNavigate();
   const { user } = useUser();
   const { getToken } = useAuth();
 
-  /* ── Auth helper — Clerk SPA uses Bearer tokens, not cookies ── */
   const authFetch = useCallback(async (url, options = {}) => {
     const token = await getToken();
     return fetch(url, {
@@ -31,7 +63,6 @@ export default function FrameReviewPage() {
     });
   }, [getToken]);
 
-  /* ── State ── */
   const [frames, setFrames] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [filter, setFilter] = useState('pending');
@@ -45,7 +76,6 @@ export default function FrameReviewPage() {
   const [retraining, setRetraining] = useState(false);
   const [approving, setApproving] = useState(false);
 
-  /* ── Fetch Frames ── */
   const fetchFrames = useCallback(async (page = 1) => {
     setLoading(true);
     try {
@@ -70,7 +100,6 @@ export default function FrameReviewPage() {
     }
   }, [filter, selectedSession, authFetch]);
 
-  /* ── Fetch Sessions ── */
   const fetchSessions = useCallback(async () => {
     try {
       const res = await authFetch(`${backendUrl}/api/review/sessions`);
@@ -83,7 +112,6 @@ export default function FrameReviewPage() {
     }
   }, [authFetch]);
 
-  /* ── Fetch Stats ── */
   const fetchStats = useCallback(async () => {
     try {
       const res = await authFetch(`${backendUrl}/api/review/stats`);
@@ -102,7 +130,6 @@ export default function FrameReviewPage() {
     fetchStats();
   }, [fetchFrames, fetchSessions, fetchStats]);
 
-  /* ── Label a frame ── */
   const handleLabel = async (label) => {
     const frame = frames[currentIdx];
     if (!frame) return;
@@ -114,7 +141,6 @@ export default function FrameReviewPage() {
         body: JSON.stringify({ human_label: label }),
       });
       if (res.ok) {
-        // Move to next frame
         fetchFrames(pagination.page < pagination.totalPages ? pagination.page + 1 : pagination.page);
         fetchStats();
       }
@@ -125,20 +151,16 @@ export default function FrameReviewPage() {
     }
   };
 
-  /* ── Skip ── */
   const handleSkip = () => {
     if (pagination.page < pagination.totalPages) {
       fetchFrames(pagination.page + 1);
     }
   };
 
-  /* ── Retrain ── */
   const handleRetrain = async () => {
     setRetraining(true);
     try {
-      const res = await authFetch(`${backendUrl}/api/review/retrain`, {
-        method: 'POST',
-      });
+      const res = await authFetch(`${backendUrl}/api/review/retrain`, { method: 'POST' });
       const data = await res.json();
       setRetrainStatus(data);
       fetchStats();
@@ -149,13 +171,10 @@ export default function FrameReviewPage() {
     }
   };
 
-  /* ── Approve ── */
   const handleApprove = async () => {
     setApproving(true);
     try {
-      const res = await authFetch(`${backendUrl}/api/review/approve`, {
-        method: 'POST',
-      });
+      const res = await authFetch(`${backendUrl}/api/review/approve`, { method: 'POST' });
       const data = await res.json();
       setRetrainStatus(data);
       fetchStats();
@@ -167,535 +186,276 @@ export default function FrameReviewPage() {
   };
 
   const currentFrame = frames[currentIdx] || null;
-  const progressPct = stats
-    ? stats.total_frames > 0
-      ? Math.round((stats.reviewed / stats.total_frames) * 100)
-      : 0
-    : 0;
+  const progressPct = stats ? (stats.total_frames > 0 ? Math.round((stats.reviewed / stats.total_frames) * 100) : 0) : 0;
 
-  /* ─────────────────────────────────────
-     RENDER
-  ───────────────────────────────────── */
   return (
-    <div
-      style={{ fontFamily: "'DM Sans', sans-serif" }}
-      className="h-screen w-screen bg-[#080808] text-white flex flex-col overflow-hidden"
-    >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
-        @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.3); }
-          50%       { box-shadow: 0 0 20px 4px rgba(52,211,153,0.15); }
-        }
-        @keyframes spin-slow { to { transform: rotate(360deg); } }
-        .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
-        .spin-slow  { animation: spin-slow 1.5s linear infinite; }
-        ::-webkit-scrollbar       { width: 3px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(52,211,153,.15); border-radius: 10px; }
-      `}</style>
+    <div style={{ ...SANS, minHeight: '100vh', display: 'flex', color: '#e2e4f0', overflow: 'hidden' }}>
+      <GridBackground />
 
-      {/* ══ HEADER ══ */}
-      <header
-        style={{
-          flexShrink: 0, height: 60,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 24px',
-          background: 'rgba(8,8,8,0.85)', backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255,255,255,0.05)', zIndex: 50,
-        }}
-      >
-        <button
-          onClick={() => navigate('/dashboard')}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            background: 'none', border: 'none', cursor: 'pointer',
-            padding: '4px 6px', borderRadius: 10,
-          }}
-        >
-          <div
-            style={{
-              width: 32, height: 32, borderRadius: 10,
-              background: 'linear-gradient(135deg,#f59e0b,#ef4444)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <Eye size={15} color="#fff" strokeWidth={2.5} />
+      {/* ═══ CYBER SIDEBAR ═══ */}
+      <aside style={{ width: 320, borderRight: '1px solid rgba(99,102,241,0.15)', background: 'rgba(5,5,8,0.85)', backdropFilter: 'blur(20px)', zIndex: 20, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, width: 20, height: 20, borderTop: '2px solid #6366f1', borderLeft: '2px solid #6366f1' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, width: 20, height: 20, borderBottom: '2px solid #6366f1', borderLeft: '2px solid #6366f1' }} />
+
+        <div style={{ padding: '30px 24px', borderBottom: '1px solid rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>
+          <div style={{ position: 'relative', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(99,102,241,0.1)', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)', border: '1px solid rgba(99,102,241,0.5)' }}>
+            <Crosshair style={{ width: 20, height: 20, color: '#818cf8' }} />
           </div>
           <div>
-            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: '#fff', lineHeight: 1 }}>
-              DeepSheild<span style={{ color: '#f59e0b' }}>.review</span>
-            </p>
-            <p style={{ fontSize: 10, color: '#52525b', marginTop: 2, lineHeight: 1 }}>
-              Frame Review Dashboard
-            </p>
+            <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: '0.05em', color: '#fff', textTransform: 'uppercase' }}>DeepShield<span style={{ color: '#818cf8' }}>.review</span></div>
+            <div style={{ ...MONO, fontSize: 10, color: '#10b981', letterSpacing: '0.1em' }}>SYS.ACTIVE // ADMIN</div>
           </div>
-        </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '5px 12px', borderRadius: 999,
-              border: '1px solid rgba(245,158,11,0.2)',
-              background: 'rgba(245,158,11,0.06)',
-              fontSize: 11, color: '#f59e0b', fontWeight: 500,
-            }}
-          >
-            <Shield size={10} />
-            Admin Only
-          </div>
-          <UserButton appearance={{ elements: { userButtonAvatarBox: 'w-8 h-8' } }} />
         </div>
-      </header>
 
-      {/* ══ BODY ══ */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+        {/* Filters */}
+        <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(99,102,241,0.1)' }}>
+          <div style={{ ...MONO, fontSize: 10, fontWeight: 700, color: '#444', letterSpacing: '0.2em', marginBottom: 12, paddingLeft: 4 }}>REVIEW_FILTER</div>
+          {[
+            { id: 'pending', label: 'PENDING_REVIEW', icon: Clock, color: '#10b981' },
+            { id: 'reviewed', label: 'VERIFIED_FRAMES', icon: CheckCircle2, color: '#6366f1' },
+            { id: 'all', label: 'ALL_RECORDS', icon: Layers, color: '#888' },
+          ].map(({ id, label, icon: Icon, color }) => {
+            const active = filter === id;
+            return (
+              <button
+                key={id}
+                onClick={() => { setFilter(id); setSelectedSession(null); }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: active ? 'linear-gradient(90deg, rgba(99,102,241,0.15) 0%, transparent 100%)' : 'transparent', border: 'none', borderLeft: active ? `2px solid ${color}` : '2px solid transparent', cursor: 'pointer', textAlign: 'left', marginBottom: 4, transition: 'all 0.2s' }}
+              >
+                <Icon style={{ width: 16, height: 16, color: active ? color : '#555' }} />
+                <span style={{ ...MONO, fontSize: 11, fontWeight: active ? 700 : 400, color: active ? '#fff' : '#888' }}>{label}</span>
+              </button>
+            );
+          })}
+        </div>
 
-        {/* ── SIDEBAR ── */}
-        <aside
-          style={{
-            width: 240, flexShrink: 0,
-            display: 'flex', flexDirection: 'column', overflow: 'auto',
-            background: 'rgba(255,255,255,0.015)',
-            borderRight: '1px solid rgba(255,255,255,0.05)',
-          }}
-        >
-          {/* Filter buttons */}
-          <div style={{ padding: '20px 14px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#3f3f46', fontWeight: 600, marginBottom: 10, paddingLeft: 6 }}>
-              Review Filter
-            </p>
-            {[
-              { id: 'pending', label: 'Pending Review', icon: Clock, color: '#f59e0b' },
-              { id: 'reviewed', label: 'Reviewed', icon: CheckCircle2, color: '#34d399' },
-              { id: 'all', label: 'All Frames', icon: Layers, color: '#a1a1aa' },
-            ].map(({ id, label, icon: Icon, color }) => {
-              const active = filter === id;
+        {/* Sessions */}
+        <div style={{ flex: 1, padding: '24px 20px', borderBottom: '1px solid rgba(99,102,241,0.1)', overflowY: 'auto' }}>
+          <div style={{ ...MONO, fontSize: 10, fontWeight: 700, color: '#444', letterSpacing: '0.2em', marginBottom: 12, paddingLeft: 4 }}>SESSIONS ({sessions.length})</div>
+          {sessions.length === 0 ? (
+            <div style={{ ...MONO, fontSize: 11, color: '#555', fontStyle: 'italic', paddingLeft: 4 }}>NO_DATA_FOUND</div>
+          ) : (
+            sessions.map((s) => {
+              const active = selectedSession === s.session_id;
               return (
                 <button
-                  key={id}
-                  onClick={() => { setFilter(id); setSelectedSession(null); }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '10px 10px', borderRadius: 12, width: '100%',
-                    border: active ? `1px solid ${color}33` : '1px solid transparent',
-                    background: active ? `${color}11` : 'transparent',
-                    color: active ? '#fff' : '#71717a',
-                    cursor: 'pointer', textAlign: 'left', marginBottom: 4,
-                    transition: 'all 0.15s',
-                  }}
+                  key={s.session_id}
+                  onClick={() => setSelectedSession(active ? null : s.session_id)}
+                  style={{ width: '100%', display: 'block', textAlign: 'left', padding: '12px', background: active ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${active ? 'rgba(99,102,241,0.3)' : 'transparent'}`, borderRadius: 4, marginBottom: 8, cursor: 'pointer' }}
                 >
-                  <div
-                    style={{
-                      width: 30, height: 30, borderRadius: 8,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: active ? `${color}22` : 'rgba(255,255,255,0.04)',
-                      color: active ? color : '#52525b', flexShrink: 0,
-                    }}
-                  >
-                    <Icon size={13} />
+                  <div style={{ ...MONO, fontSize: 11, color: active ? '#818cf8' : '#ccc', marginBottom: 4 }}>{s.session_id.slice(0, 18)}...</div>
+                  <div style={{ ...MONO, fontSize: 9, color: '#666', display: 'flex', gap: 8 }}>
+                    <span>FRM:{s.frame_count}</span>
+                    <span style={{ color: '#f59e0b' }}>PND:{s.pending}</span>
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 500 }}>{label}</span>
                 </button>
               );
-            })}
-          </div>
+            })
+          )}
+        </div>
 
-          {/* Sessions */}
-          <div style={{ padding: '16px 14px', borderBottom: '1px solid rgba(255,255,255,0.05)', flex: 1, overflow: 'auto' }}>
-            <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#3f3f46', fontWeight: 600, marginBottom: 10, paddingLeft: 6 }}>
-              Sessions ({sessions.length})
-            </p>
-            {sessions.length === 0 ? (
-              <p style={{ fontSize: 11, color: '#3f3f46', fontStyle: 'italic', paddingLeft: 6 }}>No sessions yet</p>
-            ) : (
-              sessions.map((s) => {
-                const active = selectedSession === s.session_id;
-                return (
-                  <button
-                    key={s.session_id}
-                    onClick={() => setSelectedSession(active ? null : s.session_id)}
-                    style={{
-                      display: 'block', width: '100%', textAlign: 'left',
-                      padding: '8px 10px', borderRadius: 10, marginBottom: 3,
-                      border: active ? '1px solid rgba(245,158,11,0.2)' : '1px solid transparent',
-                      background: active ? 'rgba(245,158,11,0.06)' : 'transparent',
-                      cursor: 'pointer', transition: 'all 0.15s',
-                    }}
-                  >
-                    <p style={{ fontSize: 11, color: active ? '#f59e0b' : '#a1a1aa', fontWeight: 500, marginBottom: 2 }}>
-                      {s.session_id.slice(0, 20)}…
-                    </p>
-                    <p style={{ fontSize: 10, color: '#52525b' }}>
-                      {s.frame_count} frames · {s.pending} pending
-                    </p>
-                  </button>
-                );
-              })
-            )}
-          </div>
-
-          {/* Stats */}
-          <div style={{ padding: '16px 14px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#3f3f46', fontWeight: 600, marginBottom: 10, paddingLeft: 6 }}>
-              <BarChart3 size={10} style={{ display: 'inline', marginRight: 4 }} />
-              Review Progress
-            </p>
-            {stats ? (
-              <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#71717a', marginBottom: 6 }}>
-                  <span>{stats.reviewed} reviewed</span>
-                  <span>{stats.total_frames} total</span>
-                </div>
-                <div style={{ width: '100%', height: 4, borderRadius: 10, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 8 }}>
-                  <div style={{ width: `${progressPct}%`, height: '100%', borderRadius: 10, background: 'linear-gradient(90deg, #f59e0b, #34d399)', transition: 'width 0.5s ease' }} />
-                </div>
-                <p style={{ fontSize: 10, color: '#52525b' }}>
-                  {stats.pending_review} pending · {stats.available_for_training} ready for training
-                </p>
-              </>
-            ) : (
-              <p style={{ fontSize: 11, color: '#3f3f46', fontStyle: 'italic' }}>Loading…</p>
-            )}
-          </div>
-        </aside>
-
-        {/* ── MAIN ── */}
-        <main
-          style={{
-            flex: 1, overflowY: 'auto', overflowX: 'hidden',
-            padding: '28px', display: 'flex', flexDirection: 'column', minWidth: 0,
-          }}
-        >
-          {/* Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 11, color: '#52525b' }}>
-            <Eye size={10} />
-            <span>Review</span>
-            <span style={{ color: '#27272a' }}>/</span>
-            <span style={{ color: '#f59e0b' }}>
-              {filter === 'pending' ? 'Pending' : filter === 'reviewed' ? 'Reviewed' : 'All Frames'}
-            </span>
-          </div>
-
-          <div style={{ marginBottom: 24 }}>
-            <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: '#fff', marginBottom: 4 }}>
-              Frame Review Dashboard
-            </h1>
-            <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5 }}>
-              Review model predictions and correct labels to improve accuracy over time.
-            </p>
-          </div>
-
-          {/* Frame Card */}
-          {loading ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <RefreshCw size={24} className="spin-slow" style={{ color: '#3f3f46' }} />
-            </div>
-          ) : !currentFrame ? (
-            <div
-              style={{
-                flex: 1, display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center', gap: 12,
-              }}
-            >
-              <div
-                style={{
-                  width: 72, height: 72, borderRadius: '50%',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  background: 'rgba(255,255,255,0.03)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-              >
-                <CheckCircle2 size={28} color="#34d399" />
+        {/* Stats */}
+        <div style={{ padding: '24px 20px', background: 'rgba(99,102,241,0.03)' }}>
+          <div style={{ ...MONO, fontSize: 10, fontWeight: 700, color: '#818cf8', letterSpacing: '0.2em', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}><BarChart3 size={12} /> PROGRESS_TRACKER</div>
+          {stats ? (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', ...MONO, fontSize: 10, color: '#888', marginBottom: 8 }}>
+                <span>{stats.reviewed} VERIFIED</span>
+                <span>{stats.total_frames} TOTAL</span>
               </div>
-              <p style={{ fontSize: 15, fontWeight: 600, color: '#a1a1aa' }}>
-                {filter === 'pending' ? 'All frames reviewed!' : 'No frames found'}
-              </p>
-              <p style={{ fontSize: 12, color: '#52525b' }}>
-                {filter === 'pending' ? 'Ready to retrain the model below.' : 'Adjust your filters to see frames.'}
-              </p>
+              <div style={{ width: '100%', height: 4, background: 'rgba(255,255,255,0.1)', marginBottom: 12 }}>
+                <div style={{ height: '100%', background: '#6366f1', width: `${progressPct}%`, transition: 'width 0.5s ease' }} />
+              </div>
+              <div style={{ ...MONO, fontSize: 10, color: '#666', display: 'flex', justifyContent: 'space-between' }}>
+                <span><span style={{ color: '#f59e0b', fontWeight: 700 }}>{stats.pending_review}</span> PEND</span>
+                <span><span style={{ color: '#10b981', fontWeight: 700 }}>{stats.available_for_training}</span> RDY</span>
+              </div>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 18, flex: 1, minHeight: 0, alignItems: 'start' }}>
+            <div style={{ ...MONO, fontSize: 10, color: '#555' }}>CALCULATING...</div>
+          )}
+        </div>
+      </aside>
 
-              {/* Frame viewer */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div
-                  style={{
-                    position: 'relative', borderRadius: 18, overflow: 'hidden',
-                    border: '1px solid rgba(255,255,255,0.07)', background: '#0a0a0a',
-                  }}
-                >
-                  <img
-                    src={currentFrame.frame_url}
-                    alt="Frame for review"
-                    style={{ width: '100%', maxHeight: 420, objectFit: 'contain', display: 'block' }}
-                    onError={(e) => { e.target.style.display = 'none'; }}
-                  />
+      {/* ═══ MAIN DASHBOARD ═══ */}
+      <main style={{ flex: 1, zIndex: 10, display: 'flex', flexDirection: 'column', height: '100vh', padding: '30px', gap: 24 }}>
+        
+        {/* Header HUD */}
+        <header style={{ height: 60, borderBottom: '1px solid rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(5,5,8,0.7)', backdropFilter: 'blur(10px)', padding: '0 24px', flexShrink: 0, clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}>
+          <div>
+            <h1 style={{ ...SANS, fontSize: 24, fontWeight: 900, color: '#fff', letterSpacing: '0.02em', margin: 0 }}>FRAME_ANALYSIS_HUB //</h1>
+            <p style={{ ...MONO, fontSize: 11, color: '#888', marginTop: 4, letterSpacing: '0.05em' }}>Inspect model predictions and provide ground-truth labeling to calibrate neural networks.</p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <div style={{ ...MONO, fontSize: 11, color: '#818cf8', letterSpacing: '0.1em' }}>QUEUE: {filter.toUpperCase()}</div>
+            <div style={{ width: 8, height: 8, background: '#10b981', boxShadow: '0 0 10px #10b981', animation: 'blink 2s infinite' }} />
+            <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32, borderRadius: 0, clipPath: 'polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%)' } } }} />
+          </div>
+        </header>
 
-                  {/* Model prediction overlay */}
-                  <div
-                    style={{
-                      position: 'absolute', bottom: 14, left: 14, right: 14,
-                      padding: '10px 14px', borderRadius: 12,
-                      backdropFilter: 'blur(12px)',
-                      border: currentFrame.primary_label === 'FAKE'
-                        ? '1px solid rgba(239,68,68,0.35)'
-                        : '1px solid rgba(52,211,153,0.35)',
-                      background: currentFrame.primary_label === 'FAKE'
-                        ? 'rgba(20,5,5,0.75)'
-                        : 'rgba(5,20,12,0.75)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      {currentFrame.primary_label === 'FAKE'
-                        ? <AlertCircle size={14} style={{ color: '#ef4444' }} />
-                        : <CheckCircle2 size={14} style={{ color: '#34d399' }} />}
-                      <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: currentFrame.primary_label === 'FAKE' ? '#ef4444' : '#34d399' }}>
-                        Model: {currentFrame.primary_label}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
-                        {(currentFrame.primary_confidence * 100).toFixed(1)}% conf
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 6,
-                          background: currentFrame.trust_verdict === 'TRUSTED' ? 'rgba(52,211,153,0.15)' :
-                            currentFrame.trust_verdict === 'UNTRUSTED' ? 'rgba(239,68,68,0.15)' :
-                              'rgba(245,158,11,0.15)',
-                          color: currentFrame.trust_verdict === 'TRUSTED' ? '#34d399' :
-                            currentFrame.trust_verdict === 'UNTRUSTED' ? '#ef4444' : '#f59e0b',
-                        }}
-                      >
-                        {currentFrame.trust_verdict}
-                      </span>
+        {/* Content Area */}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: 24 }}>
+          {loading ? (
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 40, height: 40, border: '2px solid #6366f1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+            </div>
+          ) : !currentFrame ? (
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CyberPanel title="SYSTEM_MESSAGE" style={{ width: 400, padding: 40, alignItems: 'center', textAlign: 'center' }}>
+                <CheckCircle2 style={{ width: 48, height: 48, color: '#10b981', marginBottom: 16 }} />
+                <h2 style={{ ...MONO, fontSize: 16, color: '#fff', marginBottom: 8 }}>QUEUE_CLEARED</h2>
+                <p style={{ ...MONO, fontSize: 11, color: '#888', lineHeight: 1.5 }}>{filter === 'pending' ? 'All pending frames have been reviewed. You can now compile the training dataset.' : 'Adjust your filters to see frames.'}</p>
+              </CyberPanel>
+            </div>
+          ) : (
+            <>
+              {/* Left Column: Frame Viewer & Labeling */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, minWidth: 0 }}>
+                <CyberPanel title={`FRAME_VIEW // ID: ${pagination.page}/${pagination.totalPages}`} style={{ flex: 1 }}>
+                  <div style={{ flex: 1, padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', position: 'relative' }}>
+                    <img
+                      key={currentFrame._id || currentIdx}
+                      src={currentFrame.frame_url}
+                      alt="Frame for review"
+                      style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', border: '1px solid rgba(255,255,255,0.1)' }}
+                    />
+                    
+                    {/* Overlay badge */}
+                    <div style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', background: currentFrame.primary_label === 'FAKE' ? 'rgba(244,63,94,0.1)' : 'rgba(16,185,129,0.1)', backdropFilter: 'blur(10px)', border: `1px solid ${currentFrame.primary_label === 'FAKE' ? '#f43f5e' : '#10b981'}`, padding: '12px 24px', display: 'flex', alignItems: 'center', gap: 24, clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                         {currentFrame.primary_label === 'FAKE' ? <AlertCircle size={18} color="#f43f5e" /> : <CheckCircle2 size={18} color="#10b981" />}
+                         <span style={{ ...MONO, fontSize: 14, fontWeight: 700, color: currentFrame.primary_label === 'FAKE' ? '#f43f5e' : '#10b981' }}>AI_VERDICT: {currentFrame.primary_label}</span>
+                      </div>
+                      <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.2)' }} />
+                      <span style={{ ...MONO, fontSize: 12, color: '#fff' }}>CONF: {(currentFrame.primary_confidence * 100).toFixed(1)}%</span>
+                      <span style={{ ...MONO, fontSize: 10, padding: '4px 8px', background: currentFrame.trust_verdict === 'TRUSTED' ? 'rgba(16,185,129,0.2)' : currentFrame.trust_verdict === 'UNTRUSTED' ? 'rgba(244,63,94,0.2)' : 'rgba(99,102,241,0.2)', color: currentFrame.trust_verdict === 'TRUSTED' ? '#10b981' : currentFrame.trust_verdict === 'UNTRUSTED' ? '#f43f5e' : '#818cf8', border: '1px solid currentColor' }}>{currentFrame.trust_verdict}</span>
                     </div>
                   </div>
+                </CyberPanel>
 
-                  {/* Frame counter */}
-                  <div
-                    style={{
-                      position: 'absolute', top: 14, right: 14,
-                      padding: '5px 12px', borderRadius: 999,
-                      background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
-                      fontSize: 11, color: '#a1a1aa', fontWeight: 500,
-                    }}
-                  >
-                    {pagination.page} / {pagination.totalPages}
-                  </div>
-                </div>
-
-                {/* Label buttons */}
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button
-                    onClick={() => handleLabel('REAL')}
-                    disabled={saving}
-                    style={{
-                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                      padding: '14px 20px', borderRadius: 14,
-                      border: '1px solid rgba(52,211,153,0.3)',
-                      background: 'rgba(52,211,153,0.08)',
-                      color: '#34d399', fontSize: 14, fontWeight: 600,
-                      cursor: saving ? 'wait' : 'pointer',
-                      opacity: saving ? 0.5 : 1, transition: 'all 0.15s',
-                      fontFamily: 'DM Sans, sans-serif',
-                    }}
-                  >
-                    <CheckCircle2 size={16} />
-                    REAL
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <button onClick={() => handleLabel('REAL')} disabled={saving} style={{ flex: 1, padding: '16px', background: 'rgba(16,185,129,0.1)', border: '1px solid #10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s', clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)', opacity: saving ? 0.5 : 1 }}>
+                    <CheckCircle2 size={20} color="#10b981" />
+                    <span style={{ ...MONO, fontSize: 14, fontWeight: 700, color: '#10b981', letterSpacing: '0.1em' }}>MARK_REAL</span>
                   </button>
-                  <button
-                    onClick={() => handleLabel('FAKE')}
-                    disabled={saving}
-                    style={{
-                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                      padding: '14px 20px', borderRadius: 14,
-                      border: '1px solid rgba(239,68,68,0.3)',
-                      background: 'rgba(239,68,68,0.08)',
-                      color: '#ef4444', fontSize: 14, fontWeight: 600,
-                      cursor: saving ? 'wait' : 'pointer',
-                      opacity: saving ? 0.5 : 1, transition: 'all 0.15s',
-                      fontFamily: 'DM Sans, sans-serif',
-                    }}
-                  >
-                    <AlertCircle size={16} />
-                    FAKE
+                  <button onClick={() => handleLabel('FAKE')} disabled={saving} style={{ flex: 1, padding: '16px', background: 'rgba(244,63,94,0.1)', border: '1px solid #f43f5e', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s', clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)', opacity: saving ? 0.5 : 1 }}>
+                    <AlertCircle size={20} color="#f43f5e" />
+                    <span style={{ ...MONO, fontSize: 14, fontWeight: 700, color: '#f43f5e', letterSpacing: '0.1em' }}>MARK_FAKE</span>
                   </button>
-                  <button
-                    onClick={handleSkip}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      padding: '14px 18px', borderRadius: 14,
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      background: 'rgba(255,255,255,0.04)',
-                      color: '#71717a', fontSize: 13, fontWeight: 500,
-                      cursor: 'pointer', transition: 'all 0.15s',
-                      fontFamily: 'DM Sans, sans-serif',
-                    }}
-                  >
-                    Skip <ChevronRight size={14} />
+                  <button onClick={handleSkip} style={{ padding: '16px 32px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer', transition: 'all 0.2s', clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}>
+                    <span style={{ ...MONO, fontSize: 14, fontWeight: 700, color: '#ccc', letterSpacing: '0.1em' }}>SKIP</span>
+                    <ChevronRight size={20} color="#ccc" />
                   </button>
                 </div>
 
-                {/* Already reviewed badge */}
                 {currentFrame.human_label && (
-                  <div
-                    style={{
-                      padding: '10px 14px', borderRadius: 12,
-                      border: '1px solid rgba(52,211,153,0.2)',
-                      background: 'rgba(52,211,153,0.06)',
-                      display: 'flex', alignItems: 'center', gap: 8,
-                    }}
-                  >
-                    <CheckCircle2 size={14} color="#34d399" />
-                    <span style={{ fontSize: 12, color: '#34d399' }}>
-                      Previously labeled <strong>{currentFrame.human_label}</strong> by reviewer
-                    </span>
+                  <div style={{ padding: '16px', background: 'rgba(99,102,241,0.1)', border: '1px solid #6366f1', display: 'flex', alignItems: 'center', gap: 12, clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}>
+                    <CheckCircle2 size={20} color="#818cf8" />
+                    <span style={{ ...MONO, fontSize: 12, color: '#fff' }}>VERIFIED_AS: <strong style={{ color: '#818cf8' }}>{currentFrame.human_label}</strong></span>
                   </div>
                 )}
               </div>
 
-              {/* Right panel — frame details + retrain */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {/* Frame details card */}
-                <div
-                  style={{
-                    padding: 18, borderRadius: 16,
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    background: 'rgba(255,255,255,0.02)',
-                  }}
-                >
-                  <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#3f3f46', fontWeight: 600, marginBottom: 14 }}>
-                    Frame Details
-                  </p>
-                  {[
-                    { label: 'Session', value: currentFrame.session_id?.slice(0, 16) + '…' },
-                    { label: 'Timestamp', value: new Date(currentFrame.timestamp).toLocaleString() },
-                    { label: 'Model Prediction', value: currentFrame.primary_label, color: currentFrame.primary_label === 'FAKE' ? '#ef4444' : '#34d399' },
-                    { label: 'Confidence', value: `${(currentFrame.primary_confidence * 100).toFixed(1)}%` },
-                    { label: 'Trust Verdict', value: currentFrame.trust_verdict, color: currentFrame.trust_verdict === 'TRUSTED' ? '#34d399' : currentFrame.trust_verdict === 'UNTRUSTED' ? '#ef4444' : '#f59e0b' },
-                    { label: 'Trust Score', value: `${(currentFrame.trust_score * 100).toFixed(1)}%` },
-                    { label: 'Latency', value: `${currentFrame.latency_ms}ms` },
-                    { label: 'Face Detected', value: currentFrame.face_detected ? 'Yes' : 'No' },
-                  ].map(({ label, value, color }) => (
-                    <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, color: '#52525b' }}>{label}</span>
-                      <span style={{ fontSize: 11, fontWeight: 500, color: color || '#a1a1aa' }}>{value}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Retrain card */}
-                <div
-                  style={{
-                    padding: 18, borderRadius: 16,
-                    border: '1px solid rgba(245,158,11,0.15)',
-                    background: 'rgba(245,158,11,0.04)',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                    <Brain size={14} color="#f59e0b" />
-                    <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#f59e0b', fontWeight: 600 }}>
-                      Model Training
-                    </p>
+              {/* Right Column: Meta & Retrain */}
+              <div style={{ width: 360, display: 'flex', flexDirection: 'column', gap: 24, flexShrink: 0 }}>
+                <CyberPanel title="FRAME_METADATA" style={{ padding: '20px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+                    {[
+                      { label: 'SESSION_ID', value: currentFrame.session_id?.slice(0, 16) + '...' },
+                      { label: 'TIMESTAMP', value: new Date(currentFrame.timestamp).toLocaleTimeString() },
+                      { label: 'PREDICTION', value: currentFrame.primary_label, color: currentFrame.primary_label === 'FAKE' ? '#f43f5e' : '#10b981' },
+                      { label: 'CONFIDENCE', value: `${(currentFrame.primary_confidence * 100).toFixed(1)}%` },
+                      { label: 'TRUST_STATUS', value: currentFrame.trust_verdict, color: currentFrame.trust_verdict === 'TRUSTED' ? '#10b981' : currentFrame.trust_verdict === 'UNTRUSTED' ? '#f43f5e' : '#818cf8' },
+                      { label: 'TRUST_SCORE', value: `${(currentFrame.trust_score * 100).toFixed(1)}%` },
+                      { label: 'LATENCY', value: `${currentFrame.latency_ms}ms` },
+                    ].map(({ label, value, color }) => (
+                      <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ ...MONO, fontSize: 10, color: '#666' }}>{label}</span>
+                        <span style={{ ...MONO, fontSize: 11, color: color || '#fff', fontWeight: color ? 700 : 400 }}>{value}</span>
+                      </div>
+                    ))}
                   </div>
+                </CyberPanel>
 
+                <CyberPanel title="NEURAL_CALIBRATION" style={{ padding: '20px' }}>
                   {stats && (
-                    <>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 6 }}>
-                        <span style={{ color: '#71717a' }}>Available for training</span>
-                        <span style={{ color: '#f59e0b', fontWeight: 600 }}>{stats.available_for_training}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16, marginBottom: 24 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ ...MONO, fontSize: 10, color: '#666' }}>DATASET_SIZE</span>
+                        <span style={{ ...MONO, fontSize: 11, color: '#818cf8', fontWeight: 700 }}>{stats.available_for_training}</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 6 }}>
-                        <span style={{ color: '#71717a' }}>Minimum required</span>
-                        <span style={{ color: '#52525b' }}>50</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ ...MONO, fontSize: 10, color: '#666' }}>REQUIRED_MIN</span>
+                        <span style={{ ...MONO, fontSize: 11, color: '#ccc' }}>50</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 14 }}>
-                        <span style={{ color: '#71717a' }}>Status</span>
-                        <span style={{ color: stats.ready_to_train ? '#34d399' : '#f59e0b', fontSize: 10, fontWeight: 600 }}>
-                          {stats.ready_to_train ? '✓ READY' : `Need ${50 - stats.available_for_training} more`}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 12 }}>
+                        <span style={{ ...MONO, fontSize: 10, color: '#666' }}>SYS_STATUS</span>
+                        <span style={{ ...MONO, fontSize: 10, fontWeight: 700, color: stats.ready_to_train ? '#10b981' : '#f59e0b' }}>
+                          {stats.ready_to_train ? 'READY_FOR_COMPILE' : `AWAITING_${50 - stats.available_for_training}`}
                         </span>
                       </div>
-                    </>
+                    </div>
                   )}
 
                   <button
                     onClick={handleRetrain}
                     disabled={retraining || !(stats?.ready_to_train)}
-                    style={{
-                      width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                      padding: '10px', borderRadius: 10,
-                      border: 'none',
-                      background: stats?.ready_to_train ? 'linear-gradient(135deg, #f59e0b, #ef4444)' : 'rgba(255,255,255,0.06)',
-                      color: stats?.ready_to_train ? '#fff' : '#3f3f46',
-                      fontSize: 12, fontWeight: 600, cursor: stats?.ready_to_train ? 'pointer' : 'not-allowed',
-                      opacity: retraining ? 0.5 : 1,
-                      marginBottom: 8, transition: 'all 0.15s',
-                    }}
+                    style={{ width: '100%', padding: '16px', background: stats?.ready_to_train ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.05)', border: `1px solid ${stats?.ready_to_train ? '#6366f1' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: stats?.ready_to_train ? 'pointer' : 'not-allowed', transition: 'all 0.2s', clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)', color: stats?.ready_to_train ? '#818cf8' : '#666' }}
                   >
-                    {retraining ? <RefreshCw size={13} className="spin-slow" /> : <Zap size={13} />}
-                    {retraining ? 'Training…' : 'Trigger Retrain'}
+                    {retraining ? <RefreshCw size={16} className="animate-spin" /> : <Zap size={16} />}
+                    <span style={{ ...MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em' }}>{retraining ? 'COMPILING...' : 'INIT_TRAINING'}</span>
                   </button>
 
                   {retrainStatus?.candidate_accuracy != null && (
-                    <>
-                      <div
-                        style={{
-                          padding: '10px 12px', borderRadius: 10, marginBottom: 8,
-                          border: '1px solid rgba(52,211,153,0.2)',
-                          background: 'rgba(52,211,153,0.06)',
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
-                          <span style={{ color: '#71717a' }}>Old accuracy</span>
-                          <span style={{ color: '#a1a1aa' }}>{(retrainStatus.old_accuracy * 100).toFixed(1)}%</span>
+                    <div style={{ marginTop: 24 }}>
+                      <div style={{ padding: '16px', background: 'rgba(16,185,129,0.1)', border: '1px solid #10b981', marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ ...MONO, fontSize: 10, color: '#10b981' }}>BASELINE_ACC</span>
+                          <span style={{ ...MONO, fontSize: 11, color: '#fff' }}>{(retrainStatus.old_accuracy * 100).toFixed(1)}%</span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                          <span style={{ color: '#71717a' }}>New accuracy</span>
-                          <span style={{ color: '#34d399', fontWeight: 700 }}>{(retrainStatus.candidate_accuracy * 100).toFixed(1)}%</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ ...MONO, fontSize: 10, color: '#10b981' }}>CANDIDATE_ACC</span>
+                          <span style={{ ...MONO, fontSize: 11, fontWeight: 700, color: '#10b981' }}>{(retrainStatus.candidate_accuracy * 100).toFixed(1)}%</span>
                         </div>
                       </div>
 
                       <button
                         onClick={handleApprove}
                         disabled={approving}
-                        className="pulse-glow"
-                        style={{
-                          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                          padding: '10px', borderRadius: 10, border: 'none',
-                          background: 'linear-gradient(135deg, #34d399, #22d3ee)',
-                          color: '#080808', fontSize: 12, fontWeight: 700,
-                          cursor: approving ? 'wait' : 'pointer',
-                          opacity: approving ? 0.5 : 1, transition: 'all 0.15s',
-                        }}
+                        style={{ width: '100%', padding: '16px', background: 'rgba(16,185,129,0.2)', border: '1px solid #10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: approving ? 'wait' : 'pointer', transition: 'all 0.2s', clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)', color: '#10b981' }}
                       >
-                        {approving ? <RefreshCw size={13} className="spin-slow" /> : <Sparkles size={13} />}
-                        {approving ? 'Deploying…' : 'Approve & Deploy Model'}
+                        {approving ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                        <span style={{ ...MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em' }}>{approving ? 'DEPLOYING...' : 'DEPLOY_CANDIDATE'}</span>
                       </button>
-                    </>
+                    </div>
                   )}
 
                   {retrainStatus?.error && (
-                    <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(239,68,68,0.1)', marginTop: 8 }}>
-                      <p style={{ fontSize: 10, color: '#ef4444' }}>{retrainStatus.error}</p>
+                    <div style={{ marginTop: 16, padding: '12px', background: 'rgba(244,63,94,0.1)', border: '1px solid #f43f5e' }}>
+                      <p style={{ ...MONO, fontSize: 10, color: '#f43f5e', margin: 0 }}>ERR: {retrainStatus.error}</p>
                     </div>
                   )}
 
                   {retrainStatus?.message && (
-                    <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(52,211,153,0.1)', marginTop: 8 }}>
-                      <p style={{ fontSize: 10, color: '#34d399' }}>{retrainStatus.message}</p>
+                    <div style={{ marginTop: 16, padding: '12px', background: 'rgba(99,102,241,0.1)', border: '1px solid #6366f1' }}>
+                      <p style={{ ...MONO, fontSize: 10, color: '#818cf8', margin: 0 }}>SYS: {retrainStatus.message}</p>
                     </div>
                   )}
-                </div>
+                </CyberPanel>
               </div>
-            </div>
+            </>
           )}
-        </main>
-      </div>
+        </div>
+      </main>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.4); }
+      `}</style>
     </div>
   );
 }

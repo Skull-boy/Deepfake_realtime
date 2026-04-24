@@ -285,7 +285,7 @@ const ScreenShareCapture = forwardRef(function ScreenShareCapture(
                 backdropFilter: 'blur(12px)',
                 border: prediction.label === 'FAKE'
                   ? '1px solid rgba(239,68,68,0.35)'
-                  : '1px solid rgba(52,211,153,0.35)',
+                  : '1px solid rgba(99,102,241,0.35)',
                 background: prediction.label === 'FAKE'
                   ? 'rgba(20,5,5,0.75)'
                   : 'rgba(5,20,12,0.75)',
@@ -297,13 +297,13 @@ const ScreenShareCapture = forwardRef(function ScreenShareCapture(
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {prediction.label === 'FAKE'
                   ? <span style={{ color: '#ef4444', display: 'flex', alignItems: 'center' }}>🚫</span>
-                  : <span style={{ color: '#34d399', display: 'flex', alignItems: 'center' }}>✅</span>}
+                  : <span style={{ color: '#6366f1', display: 'flex', alignItems: 'center' }}>✅</span>}
                 <span
                   style={{
                     fontFamily: 'Syne, sans-serif',
                     fontWeight: 700,
                     fontSize: 13,
-                    color: prediction.label === 'FAKE' ? '#ef4444' : '#34d399',
+                    color: prediction.label === 'FAKE' ? '#ef4444' : '#6366f1',
                   }}
                 >
                   {prediction.label}
