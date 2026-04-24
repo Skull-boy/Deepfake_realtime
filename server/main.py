@@ -52,7 +52,7 @@ from frequency_analyzer import analyze_frequency
 from session_report import generate_session_report, list_sessions
 from performance import FrameDeduplicator
 
-WEIGHTS_PATH = "../models/best_model.pt"
+WEIGHTS_PATH = "models/best_model.pt"
 DEVICE       = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 IMG_SIZE     = 299
 CONF_THRESH  = 0.60
@@ -238,6 +238,10 @@ def process_media_task(req: ProcessRequest):
 def process_media(req: ProcessRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(process_media_task, req)
     return {"message": "Processing started"}
+
+@app.get("/")
+def read_root():
+    return {"message": "DeepShield AI Server is running"}
 
 @app.get("/health")
 def health():

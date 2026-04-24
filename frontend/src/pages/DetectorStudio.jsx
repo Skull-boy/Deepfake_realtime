@@ -36,6 +36,7 @@ export default function DetectorStudio() {
   const [livePrediction, setLivePrediction] = useState(null);
 
   const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
@@ -91,17 +92,19 @@ export default function DetectorStudio() {
   };
 
   /* ── file handling (unchanged) ── */
-  const handleFileSelect = (file) => {
-    if (!file) return;
-    setSelectedFile(file);
-    setPreviewUrl(URL.createObjectURL(file));
+  const handleFileSelect = (files) => {
+    if (!files || files.length === 0) return;
+    const filesArray = Array.from(files);
+    setSelectedFile(filesArray[0]);
+    setSelectedFiles(filesArray);
+    setPreviewUrl(URL.createObjectURL(filesArray[0]));
     setUploadResult(null);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    handleFileSelect(e.dataTransfer.files[0]);
+    handleFileSelect(e.dataTransfer.files);
   };
 
   const handleUploadAndAnalyze = async () => {
@@ -109,7 +112,11 @@ export default function DetectorStudio() {
     setIsUploading(true);
     setUploadResult({ status: 'uploading' });
     const fd = new FormData();
-    fd.append('media', selectedFile);
+    if (selectedFiles && selectedFiles.length > 0) {
+      selectedFiles.forEach(file => fd.append('media', file));
+    } else {
+      fd.append('media', selectedFile);
+    }
     try {
       const res = await fetch(`${backendUrl}/api/upload`, { method: 'POST', body: fd });
       if (!res.ok) throw new Error('Upload failed');
@@ -326,6 +333,7 @@ export default function DetectorStudio() {
                       setUploadResult(null);
                       setPreviewUrl(null);
                       setSelectedFile(null);
+                      setSelectedFiles([]);
                     }}
                     style={{
                       display: 'flex',
@@ -845,7 +853,9 @@ export default function DetectorStudio() {
                       type="file"
                       accept={activeTab === 'video' ? 'video/*' : 'image/*'}
                       style={{ display: 'none' }}
-                      onChange={e => handleFileSelect(e.target.files[0])}
+                      multiple
+                      webkitdirectory={activeTab === 'image' ? "" : undefined}
+                      onChange={e => handleFileSelect(e.target.files)}
                     />
                   </label>
                 ) : (
@@ -896,11 +906,11 @@ export default function DetectorStudio() {
                           ? <Video size={10} color="#6366f1" />
                           : <ImageIcon size={10} color="#6366f1" />}
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {selectedFile?.name}
+                          {selectedFiles?.length > 1 ? `${selectedFiles.length} files selected` : selectedFile?.name}
                         </span>
                       </div>
                       <button
-                        onClick={() => { setPreviewUrl(null); setSelectedFile(null); setUploadResult(null); setIsUploading(false); }}
+                        onClick={() => { setPreviewUrl(null); setSelectedFile(null); setSelectedFiles([]); setUploadResult(null); setIsUploading(false); }}
                         style={{
                           padding: '5px 12px',
                           borderRadius: 999,
@@ -969,10 +979,10 @@ export default function DetectorStudio() {
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {selectedFile.name}
+                        {selectedFiles?.length > 1 ? `${selectedFiles.length} files selected` : selectedFile.name}
                       </p>
                       <p style={{ fontSize: 10, color: '#3f3f46', marginTop: 3 }}>
-                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                        {selectedFiles?.length > 1 ? 'Batch Upload' : `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`}
                       </p>
                     </div>
                   )}
